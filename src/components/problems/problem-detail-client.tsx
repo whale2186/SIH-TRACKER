@@ -31,6 +31,8 @@ import {
   Line,
 } from "recharts";
 
+import { useShortlistStore } from "@/hooks/use-shortlist";
+
 interface ProblemStatement {
   id: number;
   psId: string;
@@ -117,31 +119,18 @@ function InfoRow({ label, children, href }: { label: string; children: React.Rea
 
 export function ProblemDetailClient({ problem }: Props) {
   const router = useRouter();
+  const shortlistState = useShortlistStore();
+  
+  // Provide hydration-safe defaults or client-only checks if hydration mapping mismatches
+  // But simplest is relying on zustand store value.
+  const shortlistItem = shortlistState.items[problem.id];
 
-  const handleShortlistToggle = async () => {
-    try {
-      const res = await fetch(`/api/problems/${problem.id}/shortlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priority: "Medium", notes: "" }),
-      });
-      if (res.ok) router.refresh();
-    } catch (e) {
-      console.error("Failed to toggle shortlist", e);
-    }
+  const handleShortlistToggle = () => {
+    shortlistState.toggle(problem.id);
   };
 
-  const handleShortlistUpdate = async (priority: string, notes: string) => {
-    try {
-      await fetch(`/api/problems/${problem.id}/shortlist`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priority, notes }),
-      });
-      router.refresh();
-    } catch (e) {
-      console.error("Failed to update shortlist", e);
-    }
+  const handleShortlistUpdate = (priority: string, notes: string) => {
+    shortlistState.update(problem.id, priority, notes);
   };
 
   // Prepare chart data
@@ -178,13 +167,13 @@ export function ProblemDetailClient({ problem }: Props) {
               onClick={handleShortlistToggle}
               className={clsx(
                 "p-2 sm:p-2.5 rounded-lg transition min-h-0",
-                problem.shortlist
+                shortlistItem
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               )}
-              title={problem.shortlist ? "Remove from shortlist" : "Add to shortlist"}
+              title={shortlistItem ? "Remove from shortlist" : "Add to shortlist"}
             >
-              <Star size={18} className={problem.shortlist ? "fill-current" : ""} />
+              <Star size={18} className={shortlistItem ? "fill-current" : ""} />
             </button>
             <Link
               href={`/compare?ids=${problem.id}`}
@@ -444,15 +433,15 @@ export function ProblemDetailClient({ problem }: Props) {
             Personal Notes
           </SectionTitle>
           <div className="bg-card p-3 sm:p-4 rounded-lg border border-border">
-            {problem.shortlist ? (
+            {shortlistItem ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">Priority:</span>
-                  <PriorityBadge priority={problem.shortlist.priority} />
+                  <PriorityBadge priority={shortlistItem.priority} />
                 </div>
                 <textarea
-                  value={problem.shortlist.notes || ""}
-                  onChange={(e) => handleShortlistUpdate(problem.shortlist?.priority || "Medium", e.target.value)}
+                  value={shortlistItem.notes || ""}
+                  onChange={(e) => handleShortlistUpdate(shortlistItem.priority || "Medium", e.target.value)}
                   className="w-full min-h-[100px] p-2 sm:p-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10"
                   placeholder="Add your personal notes..."
                 />

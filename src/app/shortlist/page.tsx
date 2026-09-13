@@ -11,23 +11,17 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { formatDistanceToNow } from "date-fns";
+import { useShortlistStore } from "@/hooks/use-shortlist";
 
-interface ShortlistItem {
+interface ProblemStatementInfo {
   id: number;
-  problemStatementId: number;
-  priority: string;
-  notes: string;
-  createdAt: string;
-  problemStatement: {
-    id: number;
-    psId: string;
-    title: string;
-    applicationCount: number;
-    competitionLevel: string;
-    organization: string;
-    category: string;
-    theme: string;
-  };
+  psId: string;
+  title: string;
+  applicationCount: number;
+  competitionLevel: string;
+  organization: string;
+  category: string;
+  theme: string;
 }
 
 function CompetitionBadge({ level }: { level: string }) {
@@ -58,57 +52,58 @@ function PriorityBadge({ priority }: { priority: string }) {
 }
 
 function ShortlistPage() {
-  const [items, setItems] = useState<ShortlistItem[]>([]);
+  const shortlistState = useShortlistStore();
+  const [hydrated, setHydrated] = useState(false);
+  const [problems, setProblems] = useState<Record<number, ProblemStatementInfo>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchData() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/shortlist");
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
-      setItems(data);
-    } catch (e) {
-      setError("Failed to load shortlist");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function removeItem(id: number) {
-    try {
-      const res = await fetch(`/api/shortlist/${id}`, { method: "DELETE" });
-      if (res.ok) fetchData();
-    } catch (e) {
-      console.error("Failed to remove", e);
-    }
-  }
-
-  async function updatePriority(id: number, priority: string) {
-    try {
-      const res = await fetch(`/api/shortlist/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priority }),
-      });
-      if (res.ok) fetchData();
-    } catch (e) {
-      console.error("Failed to update", e);
-    }
-  }
-
   useEffect(() => {
-    fetchData();
+    setHydrated(true);
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const ids = Object.keys(shortlistState.items);
+    if (ids.length === 0) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetchProblems() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/problems?ids=${ids.join(",")}&limit=500`);
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        const problemMap: Record<number, ProblemStatementInfo> = {};
+        for (const p of data.data) {
+          problemMap[p.id] = p;
+        }
+        setProblems(problemMap);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load freshly synced stats");
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchProblems();
+  }, [hydrated, shortlistState.items]);
+
+  if (!hydrated || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/70" />
       </div>
     );
   }
+
+  const items = Object.values(shortlistState.items)
+    .filter((item) => problems[item.problemStatementId]) // only show if problem exists
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (items.length === 0) {
     return (
@@ -133,16 +128,17 @@ function ShortlistPage() {
 
       {/* ═══ MOBILE: Card View ═══ */}
       <div className="sm:hidden space-y-3">
-        {items.map((item) => (
-          <div key={item.id} className="bg-card rounded-lg border border-border p-4">
-            {/* Header: PS ID + Priority + Remove */}
+        {items.map((item) => {
+          const problem = problems[item.problemStatementId];
+          return (
+          <div key={item.problemStatementId} className="bg-card rounded-lg border border-border p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground">{item.problemStatement.psId}</span>
+                <span className="text-xs font-mono text-muted-foreground">{problem.psId}</span>
                 <PriorityBadge priority={item.priority} />
               </div>
               <button
-                onClick={() => removeItem(item.id)}
+                onClick={() => shortlistState.toggle(item.problemStatementId)}
                 className="p-1.5 text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 rounded min-h-0"
                 title="Remove from shortlist"
               >
@@ -150,26 +146,23 @@ function ShortlistPage() {
               </button>
             </div>
 
-            {/* Title */}
-            <Link href={`/problems/${item.problemStatement.id}`} className="block mb-3">
-              <h3 className="text-sm font-medium text-foreground leading-snug line-clamp-2">{item.problemStatement.title}</h3>
+            <Link href={`/problems/${problem.id}`} className="block mb-3">
+              <h3 className="text-sm font-medium text-foreground leading-snug line-clamp-2">{problem.title}</h3>
             </Link>
 
-            {/* Org */}
-            <p className="text-xs text-muted-foreground truncate mb-3">{item.problemStatement.organization}</p>
+            <p className="text-xs text-muted-foreground truncate mb-3">{problem.organization}</p>
 
-            {/* Stats row */}
             <div className="flex items-center justify-between border-t border-border/50 pt-3">
               <div className="flex items-center gap-3">
                 <div>
-                  <p className="text-lg font-bold font-mono text-foreground leading-none">{item.problemStatement.applicationCount.toLocaleString()}</p>
+                  <p className="text-lg font-bold font-mono text-foreground leading-none">{problem.applicationCount.toLocaleString()}</p>
                   <p className="text-[10px] text-muted-foreground/70 mt-0.5">applications</p>
                 </div>
-                <CompetitionBadge level={item.problemStatement.competitionLevel} />
+                <CompetitionBadge level={problem.competitionLevel} />
               </div>
               <select
                 value={item.priority}
-                onChange={(e) => updatePriority(item.id, e.target.value)}
+                onChange={(e) => shortlistState.update(item.problemStatementId, e.target.value, item.notes)}
                 className="text-xs px-2 py-1.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-card"
               >
                 <option value="High">High</option>
@@ -178,18 +171,16 @@ function ShortlistPage() {
               </select>
             </div>
 
-            {/* Notes preview */}
             {item.notes && (
               <p className="text-xs text-muted-foreground mt-2 line-clamp-1 italic">&ldquo;{item.notes}&rdquo;</p>
             )}
 
-            {/* Tags */}
             <div className="flex flex-wrap gap-1 mt-2">
-              <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-[10px] capitalize">{item.problemStatement.category}</span>
-              <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-[10px] max-w-[100px] truncate">{item.problemStatement.theme}</span>
+              <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-[10px] capitalize">{problem.category}</span>
+              <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-[10px] max-w-[100px] truncate">{problem.theme}</span>
             </div>
           </div>
-        ))}
+        )})}
       </div>
 
       {/* ═══ DESKTOP: Table View ═══ */}
@@ -212,23 +203,25 @@ function ShortlistPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.id} className="border-b border-border/50 hover:bg-muted/50">
-                  <td className="px-3 py-2 font-mono text-sm font-medium text-foreground">{item.problemStatement.psId}</td>
+              {items.map((item) => {
+                const problem = problems[item.problemStatementId];
+                return (
+                <tr key={item.problemStatementId} className="border-b border-border/50 hover:bg-muted/50">
+                  <td className="px-3 py-2 font-mono text-sm font-medium text-foreground">{problem.psId}</td>
                   <td className="px-3 py-2">
-                    <Link href={`/problems/${item.problemStatement.id}`} className="font-medium text-foreground hover:text-muted-foreground block truncate max-w-md">
-                      {item.problemStatement.title}
+                    <Link href={`/problems/${problem.id}`} className="font-medium text-foreground hover:text-muted-foreground block truncate max-w-md">
+                      {problem.title}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 font-mono text-sm text-foreground">{item.problemStatement.applicationCount.toLocaleString()}</td>
-                  <td className="px-3 py-2"><CompetitionBadge level={item.problemStatement.competitionLevel} /></td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[150px]">{item.problemStatement.organization}</td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground capitalize">{item.problemStatement.category}</td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[120px]">{item.problemStatement.theme}</td>
+                  <td className="px-3 py-2 font-mono text-sm text-foreground">{problem.applicationCount.toLocaleString()}</td>
+                  <td className="px-3 py-2"><CompetitionBadge level={problem.competitionLevel} /></td>
+                  <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[150px]">{problem.organization}</td>
+                  <td className="px-3 py-2 text-sm text-muted-foreground capitalize">{problem.category}</td>
+                  <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[120px]">{problem.theme}</td>
                   <td className="px-3 py-2">
                     <select
                       value={item.priority}
-                      onChange={(e) => updatePriority(item.id, e.target.value)}
+                      onChange={(e) => shortlistState.update(item.problemStatementId, e.target.value, item.notes)}
                       className="text-xs px-2 py-1 border border-border rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
                     >
                       <option value="High">High</option>
@@ -240,7 +233,7 @@ function ShortlistPage() {
                   <td className="px-3 py-2 text-sm text-muted-foreground">{formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}</td>
                   <td className="px-3 py-2 text-right">
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => shortlistState.toggle(item.problemStatementId)}
                       className="p-1.5 text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 rounded min-h-0"
                       title="Remove from shortlist"
                     >
@@ -248,7 +241,7 @@ function ShortlistPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>

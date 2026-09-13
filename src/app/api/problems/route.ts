@@ -19,8 +19,17 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "50");
 
+    const idsParam = searchParams.get("ids");
+    
     const where: Prisma.ProblemStatementWhereInput = {};
     const conditions: Prisma.ProblemStatementWhereInput[] = [];
+
+    if (idsParam) {
+      const ids = idsParam.split(",").map((id) => parseInt(id.trim())).filter((id) => !isNaN(id));
+      if (ids.length > 0) {
+        conditions.push({ id: { in: ids } });
+      }
+    }
 
     if (search) {
       conditions.push({
