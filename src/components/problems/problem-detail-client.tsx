@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -10,14 +9,12 @@ import {
   Database,
   FileText,
   Link2,
-  Loader2,
   AlertTriangle,
   CheckCircle,
   TrendingUp,
   TrendingDown,
   Clock,
   Globe,
-  AlertCircle,
   PlaySquare,
 } from "lucide-react";
 import clsx from "clsx";
@@ -125,29 +122,6 @@ function renderDescription(html: string) {
 }
 
 export function ProblemDetailClient({ problem }: Props) {
-  const [summaryLoading, setSummaryLoading] = useState(false);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
-
-  const handleSummarize = async (regenerate = false) => {
-    setSummaryLoading(true);
-    setSummaryError(null);
-    try {
-      const params = new URLSearchParams();
-      if (regenerate) params.set("regenerate", "true");
-      const res = await fetch(`/api/problems/${problem.id}/summarize?${params}`);
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to generate summary");
-      }
-      const data = await res.json();
-      window.location.reload(); // Refresh to show new summary
-    } catch (e) {
-      setSummaryError(e instanceof Error ? e.message : "Summarization failed");
-    } finally {
-      setSummaryLoading(false);
-    }
-  };
-
   const handleShortlistToggle = async () => {
     try {
       const res = await fetch(`/api/problems/${problem.id}/shortlist`, {
@@ -293,69 +267,6 @@ export function ProblemDetailClient({ problem }: Props) {
               ? <div className="ps-description text-sm text-gray-700 whitespace-pre-wrap leading-relaxed" dangerouslySetInnerHTML={{ __html: problem.descriptionHtml }} />
               : <p className="text-sm text-gray-700 whitespace-pre-wrap">{problem.description}</p>}
           </div>
-        </section>
-
-        {/* Gemini Summary */}
-        <section>
-          <SectionTitle>
-            <AlertCircle size={16} className="text-purple-600" />
-            Gemini Summary
-            {!problem.summary && (
-              <button
-                onClick={() => handleSummarize()}
-                disabled={summaryLoading}
-                className="ml-3 text-xs px-3 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 disabled:opacity-50"
-              >
-                {summaryLoading ? (
-                  <>
-                    <Loader2 size={12} className="animate-spin inline" />
-                    Generating...
-                  </>
-                ) : (
-                  "Summarize with Gemini"
-                )}
-              </button>
-            )}
-            {problem.summary && (
-              <button
-                onClick={() => handleSummarize(true)}
-                disabled={summaryLoading}
-                className="ml-3 text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
-              >
-                {summaryLoading ? (
-                  <>
-                    <Loader2 size={12} className="animate-spin inline" />
-                    Regenerating...
-                  </>
-                ) : (
-                  "Regenerate Summary"
-                )}
-              </button>
-            )}
-          </SectionTitle>
-
-          {summaryError && (
-            <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm mb-3">
-              {summaryError}
-            </div>
-          )}
-
-          {problem.summary ? (
-            <div className="bg-purple-50 border border-purple-200 rounded p-4">
-              <p className="text-xs text-purple-700 mb-2">
-                Generated: {formatDistanceToNow(new Date(problem.summary.generatedAt), { addSuffix: true })}
-                • Model: {problem.summary.model}
-              </p>
-              <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
-                {problem.summary.summary}
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">
-              Click "Summarize with Gemini" to generate an AI summary of this problem statement.
-              Requires <code className="bg-gray-100 px-1 rounded">GEMINI_API_KEY</code> in environment.
-            </p>
-          )}
         </section>
 
         {/* Dataset */}
