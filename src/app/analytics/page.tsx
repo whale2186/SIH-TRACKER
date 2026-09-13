@@ -54,11 +54,11 @@ const COLORS = [
 
 function StatCard({ title, value, icon: Icon, color }: { title: string; value: string | number; icon: React.FC<{ className?: string; style?: React.CSSProperties }>; color: string }) {
   return (
-    <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
+    <div className="bg-card p-3 sm:p-4 rounded-lg border border-border">
       <div className="flex items-center justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">{title}</p>
-          <p className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{value}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-foreground truncate">{value}</p>
         </div>
         <Icon className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" style={{ color }} />
       </div>
@@ -101,7 +101,7 @@ function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/70" />
       </div>
     );
   }
@@ -125,7 +125,7 @@ function AnalyticsPage() {
 
   return (
     <div className="p-3 sm:p-4 md:p-6 pb-20 lg:pb-6">
-      <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Analytics</h1>
+      <h1 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Analytics</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-4 sm:mb-6">
@@ -149,15 +149,15 @@ function AnalyticsPage() {
 
       <div className="space-y-4 sm:space-y-6">
         {/* Competition Distribution */}
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">Competition Level Distribution</h2>
+        <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+          <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">Competition Level Distribution</h2>
 
           {/* Mobile: bar chart instead of pie */}
           <div className="sm:hidden mb-3 space-y-2">
             {competitionData.map((d) => (
               <div key={d.level} className="flex items-center gap-2">
-                <span className="w-20 text-xs text-gray-600">{d.level}</span>
-                <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                <span className="w-20 text-xs text-muted-foreground">{d.level}</span>
+                <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
                   <div
                     className="h-full rounded"
                     style={{
@@ -166,7 +166,7 @@ function AnalyticsPage() {
                     }}
                   />
                 </div>
-                <span className="text-xs text-gray-600 w-12 text-right">{d.count}</span>
+                <span className="text-xs text-muted-foreground w-12 text-right">{d.count}</span>
               </div>
             ))}
           </div>
@@ -177,7 +177,7 @@ function AnalyticsPage() {
               {competitionData.map((d) => (
                 <div key={d.level} className="flex items-center gap-2">
                   <span className="h-3 w-3 rounded" style={{ backgroundColor: d.color }} />
-                  <span className="text-sm text-gray-700">{d.level}: {d.count} ({((d.count / data.totalPS) * 100).toFixed(1)}%)</span>
+                  <span className="text-sm text-muted-foreground">{d.level}: {d.count} ({((d.count / data.totalPS) * 100).toFixed(1)}%)</span>
                 </div>
               ))}
             </div>
@@ -210,8 +210,8 @@ function AnalyticsPage() {
 
         {/* Category & Theme Distribution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">By Category</h2>
+          <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">By Category</h2>
             <div className="h-52 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={categoryData} layout="vertical">
@@ -225,8 +225,8 @@ function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">By Theme (Top 10)</h2>
+          <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">By Theme (Top 10)</h2>
             <div className="h-52 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={themeData} layout="vertical">
@@ -243,8 +243,8 @@ function AnalyticsPage() {
 
         {/* Organization & Application Distribution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">By Organization (Top 10)</h2>
+          <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">By Organization (Top 10)</h2>
             <div className="h-52 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={orgData} layout="vertical">
@@ -258,8 +258,8 @@ function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">Application Count Distribution</h2>
+          <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">Application Count Distribution</h2>
             <div className="h-52 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.applicationDistribution}>
@@ -276,23 +276,23 @@ function AnalyticsPage() {
 
         {/* Tables - scrollable on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">Theme Details</h2>
+          <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">Theme Details</h2>
             <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500">Theme</th>
-                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500">PSs</th>
-                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500">Avg</th>
+                  <tr className="border-b border-border">
+                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-muted-foreground">Theme</th>
+                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-muted-foreground">PSs</th>
+                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-muted-foreground">Avg</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.byTheme.map((t) => (
-                    <tr key={t.theme} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-2 sm:px-3 py-2 text-gray-900 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{t.theme}</td>
-                      <td className="px-2 sm:px-3 py-2 text-gray-600 text-xs sm:text-sm">{t.count}</td>
-                      <td className="px-2 sm:px-3 py-2 text-gray-600 text-xs sm:text-sm">{t.avgApplications}</td>
+                    <tr key={t.theme} className="border-b border-border/50 hover:bg-muted/50">
+                      <td className="px-2 sm:px-3 py-2 text-foreground text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{t.theme}</td>
+                      <td className="px-2 sm:px-3 py-2 text-muted-foreground text-xs sm:text-sm">{t.count}</td>
+                      <td className="px-2 sm:px-3 py-2 text-muted-foreground text-xs sm:text-sm">{t.avgApplications}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -300,23 +300,23 @@ function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4">Organization Details</h2>
+          <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">Organization Details</h2>
             <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500">Organization</th>
-                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500">PSs</th>
-                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500">Avg</th>
+                  <tr className="border-b border-border">
+                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-muted-foreground">Organization</th>
+                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-muted-foreground">PSs</th>
+                    <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-muted-foreground">Avg</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.byOrganization.map((o) => (
-                    <tr key={o.organization} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-2 sm:px-3 py-2 text-gray-900 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{o.organization}</td>
-                      <td className="px-2 sm:px-3 py-2 text-gray-600 text-xs sm:text-sm">{o.count}</td>
-                      <td className="px-2 sm:px-3 py-2 text-gray-600 text-xs sm:text-sm">{o.avgApplications}</td>
+                    <tr key={o.organization} className="border-b border-border/50 hover:bg-muted/50">
+                      <td className="px-2 sm:px-3 py-2 text-foreground text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{o.organization}</td>
+                      <td className="px-2 sm:px-3 py-2 text-muted-foreground text-xs sm:text-sm">{o.count}</td>
+                      <td className="px-2 sm:px-3 py-2 text-muted-foreground text-xs sm:text-sm">{o.avgApplications}</td>
                     </tr>
                   ))}
                 </tbody>

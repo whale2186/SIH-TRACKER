@@ -25,7 +25,7 @@ export function getCompetitionColor(level: string): string {
     case 'High': return 'text-orange-700 bg-orange-50 border-orange-200';
     case 'Medium': return 'text-yellow-700 bg-yellow-50 border-yellow-200';
     case 'Low': return 'text-green-700 bg-green-50 border-green-200';
-    default: return 'text-gray-700 bg-gray-50 border-gray-200';
+    default: return 'text-muted-foreground bg-muted/50 border-border';
   }
 }
 
@@ -35,6 +35,6 @@ export function getCompetitionBadgeColor(level: string): string {
     case 'High': return 'bg-orange-100 text-orange-800';
     case 'Medium': return 'bg-yellow-100 text-yellow-800';
     case 'Low': return 'bg-green-100 text-green-800';
-    default: return 'bg-gray-100 text-gray-800';
+    default: return 'bg-muted text-foreground/90';
   }
 }

@@ -38,7 +38,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function ChangeIndicator({ change }: { change: number }) {
-  if (change === 0) return <span className="text-gray-400">—</span>;
+  if (change === 0) return <span className="text-muted-foreground/70">—</span>;
   return (
     <span className={clsx("text-sm font-medium flex items-center gap-1", change > 0 ? "text-green-600" : "text-red-600")}>
       {change > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -49,15 +49,15 @@ function ChangeIndicator({ change }: { change: number }) {
 
 function SyncLogCard({ log }: { log: SyncLog }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex items-center gap-2">
           <StatusBadge status={log.status} />
         </div>
-        <span className="text-xs text-gray-400 flex-shrink-0">{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</span>
+        <span className="text-xs text-muted-foreground/70 flex-shrink-0">{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</span>
       </div>
-      <p className="text-sm text-gray-900 mb-2">{log.message}</p>
-      <div className="flex items-center gap-3 text-xs text-gray-500">
+      <p className="text-sm text-foreground mb-2">{log.message}</p>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
         <span>{log.count} PSs</span>
       </div>
     </div>
@@ -66,27 +66,27 @@ function SyncLogCard({ log }: { log: SyncLog }) {
 
 function HistoryEntryCard({ h }: { h: HistoryEntry }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="text-xs font-mono text-gray-500 flex-shrink-0">{h.problemStatement.psId}</span>
-        <span className="text-xs text-gray-400 flex-shrink-0">{formatDistanceToNow(new Date(h.timestamp), { addSuffix: true })}</span>
+        <span className="text-xs font-mono text-muted-foreground flex-shrink-0">{h.problemStatement.psId}</span>
+        <span className="text-xs text-muted-foreground/70 flex-shrink-0">{formatDistanceToNow(new Date(h.timestamp), { addSuffix: true })}</span>
       </div>
-      <p className="text-sm font-medium text-gray-900 mb-3 line-clamp-2">{h.problemStatement.title}</p>
+      <p className="text-sm font-medium text-foreground mb-3 line-clamp-2">{h.problemStatement.title}</p>
       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="p-2 bg-gray-50 rounded">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider">Previous</p>
-          <p className="text-sm font-mono text-gray-900">{h.previousCount.toLocaleString()}</p>
+        <div className="p-2 bg-muted/50 rounded">
+          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Previous</p>
+          <p className="text-sm font-mono text-foreground">{h.previousCount.toLocaleString()}</p>
         </div>
-        <div className="p-2 bg-gray-50 rounded">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider">New</p>
-          <p className="text-sm font-mono text-gray-900">{h.applicationCount.toLocaleString()}</p>
+        <div className="p-2 bg-muted/50 rounded">
+          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">New</p>
+          <p className="text-sm font-mono text-foreground">{h.applicationCount.toLocaleString()}</p>
         </div>
-        <div className="p-2 bg-gray-50 rounded">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider">Change</p>
+        <div className="p-2 bg-muted/50 rounded">
+          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Change</p>
           <ChangeIndicator change={h.change} />
         </div>
       </div>
-      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
+      <div className="mt-3 pt-3 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
         <span className="capitalize">{h.source}</span>
       </div>
     </div>
@@ -136,7 +136,7 @@ function HistoryPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/70" />
       </div>
     );
   }
@@ -145,12 +145,12 @@ function HistoryPage() {
     <div className="p-3 sm:p-4 md:p-6 pb-20 lg:pb-6">
       <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">History & Sync</h1>
-          <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Track application count changes and sync status</p>
+          <h1 className="text-lg sm:text-xl font-semibold text-foreground">History & Sync</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Track application count changes and sync status</p>
         </div>
         <button
           onClick={triggerSync}
-          className="w-full sm:w-auto px-4 py-2.5 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-700 flex items-center justify-center gap-2 min-h-0"
+          className="w-full sm:w-auto px-4 py-2.5 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 flex items-center justify-center gap-2 min-h-0"
         >
           <RefreshCw size={16} />
           Sync with SIH Website
@@ -166,12 +166,12 @@ function HistoryPage() {
 
       {/* Sync Logs */}
       <div className="mb-4 sm:mb-6">
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Sync Logs</h2>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Sync Logs</h2>
 
         {/* Mobile: Card view */}
         <div className="sm:hidden space-y-3">
           {syncLogs.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500 text-sm">
+            <div className="bg-card rounded-lg border border-border p-8 text-center text-muted-foreground text-sm">
               No sync logs yet
             </div>
           ) : (
@@ -180,31 +180,31 @@ function HistoryPage() {
         </div>
 
         {/* Desktop: Table view */}
-        <div className="hidden sm:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="hidden sm:block bg-card rounded-lg border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Message</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Count</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                <tr className="bg-muted/50 border-b border-border">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Message</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Count</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Time</th>
                 </tr>
               </thead>
               <tbody>
                 {syncLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-gray-500">No sync logs yet</td>
+                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">No sync logs yet</td>
                   </tr>
                 ) : (
                   syncLogs.map((log) => (
-                    <tr key={log.id} className="border-b border-gray-100">
+                    <tr key={log.id} className="border-b border-border/50">
                       <td className="px-3 py-2">
                         <StatusBadge status={log.status} />
                       </td>
-                      <td className="px-3 py-2 text-sm text-gray-900 max-w-md truncate">{log.message}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{log.count}</td>
-                      <td className="px-3 py-2 text-sm text-gray-500">{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</td>
+                      <td className="px-3 py-2 text-sm text-foreground max-w-md truncate">{log.message}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{log.count}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}</td>
                     </tr>
                   ))
                 )}
@@ -216,12 +216,12 @@ function HistoryPage() {
 
       {/* Application History */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Application Count Changes</h2>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Application Count Changes</h2>
 
         {/* Mobile: Card view */}
         <div className="sm:hidden space-y-3">
           {history.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500 text-sm">
+            <div className="bg-card rounded-lg border border-border p-8 text-center text-muted-foreground text-sm">
               No history entries yet
             </div>
           ) : (
@@ -230,35 +230,35 @@ function HistoryPage() {
         </div>
 
         {/* Desktop: Table view */}
-        <div className="hidden sm:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="hidden sm:block bg-card rounded-lg border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">PS ID</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Previous</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">New</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Change</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                <tr className="bg-muted/50 border-b border-border">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">PS ID</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Title</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Previous</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">New</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Change</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Source</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Time</th>
                 </tr>
               </thead>
               <tbody>
                 {history.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">No history entries yet</td>
+                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No history entries yet</td>
                   </tr>
                 ) : (
                   history.slice(0, 100).map((h) => (
-                    <tr key={h.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-3 py-2 font-mono text-sm font-medium text-gray-900">{h.problemStatement.psId}</td>
-                      <td className="px-3 py-2 text-sm text-gray-900 truncate max-w-xs">{h.problemStatement.title}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{h.previousCount.toLocaleString()}</td>
-                      <td className="px-3 py-2 font-mono text-sm text-gray-900">{h.applicationCount.toLocaleString()}</td>
+                    <tr key={h.id} className="border-b border-border/50 hover:bg-muted/50">
+                      <td className="px-3 py-2 font-mono text-sm font-medium text-foreground">{h.problemStatement.psId}</td>
+                      <td className="px-3 py-2 text-sm text-foreground truncate max-w-xs">{h.problemStatement.title}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{h.previousCount.toLocaleString()}</td>
+                      <td className="px-3 py-2 font-mono text-sm text-foreground">{h.applicationCount.toLocaleString()}</td>
                       <td className="px-3 py-2"><ChangeIndicator change={h.change} /></td>
-                      <td className="px-3 py-2 text-sm text-gray-500 capitalize">{h.source}</td>
-                      <td className="px-3 py-2 text-sm text-gray-500">{formatDistanceToNow(new Date(h.timestamp), { addSuffix: true })}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground capitalize">{h.source}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{formatDistanceToNow(new Date(h.timestamp), { addSuffix: true })}</td>
                     </tr>
                   ))
                 )}
@@ -266,7 +266,7 @@ function HistoryPage() {
             </table>
           </div>
           {history.length > 100 && (
-            <div className="px-4 py-3 border-t border-gray-200 text-sm text-gray-500 text-center">
+            <div className="px-4 py-3 border-t border-border text-sm text-muted-foreground text-center">
               Showing 100 of {history.length} entries
             </div>
           )}

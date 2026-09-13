@@ -64,9 +64,9 @@ function CompetitionBadge({ level }: { level: string }) {
 }
 
 function GrowthIndicator({ current, previous }: { current: number; previous: number }) {
-  if (!previous) return <span className="text-xs text-gray-400">—</span>;
+  if (!previous) return <span className="text-xs text-muted-foreground/70">—</span>;
   const diff = current - previous;
-  if (diff === 0) return <span className="text-xs text-gray-400">—</span>;
+  if (diff === 0) return <span className="text-xs text-muted-foreground/70">—</span>;
   const isPositive = diff > 0;
   return (
     <span
@@ -82,19 +82,19 @@ function GrowthIndicator({ current, previous }: { current: number; previous: num
 }
 
 function LastUpdated({ lastCheckedAt, updateSource }: { lastCheckedAt: string | null; updateSource: string }) {
-  if (!lastCheckedAt) return <span className="text-xs text-gray-400">Never</span>;
+  if (!lastCheckedAt) return <span className="text-xs text-muted-foreground/70">Never</span>;
   try {
     const date = new Date(lastCheckedAt);
-    if (isNaN(date.getTime())) return <span className="text-xs text-gray-400">Invalid</span>;
+    if (isNaN(date.getTime())) return <span className="text-xs text-muted-foreground/70">Invalid</span>;
     const timeAgo = formatDistanceToNow(date, { addSuffix: true });
     const isManual = updateSource === "manual" || updateSource === "import";
     return (
-      <span className="text-xs text-gray-500" title={updateSource}>
+      <span className="text-xs text-muted-foreground" title={updateSource}>
         {isManual ? "Manual " : ""}{timeAgo}
       </span>
     );
   } catch {
-    return <span className="text-xs text-gray-400">Error</span>;
+    return <span className="text-xs text-muted-foreground/70">Error</span>;
   }
 }
 
@@ -113,7 +113,7 @@ function ColumnHeader({
 }) {
   const isActive = sortBy === field;
   return (
-    <th className="cursor-pointer hover:bg-gray-100 select-none" onClick={() => onSort(field)}>
+    <th className="cursor-pointer hover:bg-muted select-none" onClick={() => onSort(field)}>
       <div className="flex items-center gap-1">
         <span>{label}</span>
         {isActive && (sortOrder === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}
@@ -127,10 +127,10 @@ function ColumnHeader({
 function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlistToggle: () => void }) {
   const diff = p.applicationCount - p.previousApplicationCount;
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 active:bg-gray-50 transition-colors">
+    <div className="bg-card rounded-lg border border-border p-4 active:bg-muted/50 transition-colors">
       {/* Top row: PS ID + shortlist */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-mono text-gray-500">{p.psId}</span>
+        <span className="text-xs font-mono text-muted-foreground">{p.psId}</span>
         <div className="flex items-center gap-2">
           <CompetitionBadge level={p.competitionLevel} />
           <button
@@ -147,18 +147,18 @@ function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlis
 
       {/* Title */}
       <Link href={`/problems/${p.id}`} className="block mb-2">
-        <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">{p.title}</h3>
+        <h3 className="text-sm font-semibold text-foreground leading-snug line-clamp-2">{p.title}</h3>
       </Link>
 
       {/* Org */}
-      <p className="text-xs text-gray-500 truncate mb-3">{p.organization}</p>
+      <p className="text-xs text-muted-foreground truncate mb-3">{p.organization}</p>
 
       {/* Stats row */}
-      <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+      <div className="flex items-center justify-between border-t border-border/50 pt-3">
         <div className="flex items-center gap-4">
           <div>
-            <p className="text-lg font-bold font-mono text-gray-900 leading-none">{p.applicationCount.toLocaleString()}</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">applications</p>
+            <p className="text-lg font-bold font-mono text-foreground leading-none">{p.applicationCount.toLocaleString()}</p>
+            <p className="text-[10px] text-muted-foreground/70 mt-0.5">applications</p>
           </div>
           {diff !== 0 && p.previousApplicationCount > 0 && (
             <div className={clsx("text-xs font-medium", diff > 0 ? "text-green-600" : "text-red-600")}>
@@ -168,8 +168,8 @@ function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlis
           )}
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] capitalize">{p.category}</span>
-          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] max-w-[80px] truncate">{p.theme}</span>
+          <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-[10px] capitalize">{p.category}</span>
+          <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded text-[10px] max-w-[80px] truncate">{p.theme}</span>
         </div>
       </div>
     </div>
@@ -284,7 +284,7 @@ export function Dashboard() {
   if (loading && problems.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/70" />
       </div>
     );
   }
@@ -294,27 +294,27 @@ export function Dashboard() {
       {/* Header */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">SIH 2026 Tracker</h1>
-          <p className="text-xs sm:text-sm text-gray-500">{totalCount} problem statements tracked</p>
+          <h1 className="text-lg sm:text-xl font-semibold text-foreground">SIH 2026 Tracker</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">{totalCount} problem statements tracked</p>
         </div>
         <div className="flex flex-wrap gap-1.5 sm:gap-2">
           <button
             onClick={() => applyQuickSort("lowest")}
-            className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 min-h-0"
+            className="text-xs px-2.5 py-1.5 bg-muted text-muted-foreground rounded-md hover:bg-gray-200 min-h-0"
             title="Lowest applications first"
           >
             Lowest Apps
           </button>
           <button
             onClick={() => applyQuickSort("recent")}
-            className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 min-h-0"
+            className="text-xs px-2.5 py-1.5 bg-muted text-muted-foreground rounded-md hover:bg-gray-200 min-h-0"
             title="Recently updated"
           >
             Recent
           </button>
           <button
             onClick={() => applyQuickSort("shortlist")}
-            className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 min-h-0"
+            className="text-xs px-2.5 py-1.5 bg-muted text-muted-foreground rounded-md hover:bg-gray-200 min-h-0"
             title="My shortlist only"
           >
             ★ Shortlist
@@ -325,50 +325,50 @@ export function Dashboard() {
       {/* Analytics Summary */}
       {analytics && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-4">
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Tracked</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.totalPS}</p>
+          <div className="bg-card p-3 rounded-lg border border-border">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Tracked</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{analytics.totalPS}</p>
           </div>
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Total Apps</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.totalApplications.toLocaleString()}</p>
+          <div className="bg-card p-3 rounded-lg border border-border">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Total Apps</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{analytics.totalApplications.toLocaleString()}</p>
           </div>
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Avg Apps</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.averageApplications}</p>
+          <div className="bg-card p-3 rounded-lg border border-border">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Avg Apps</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{analytics.averageApplications}</p>
           </div>
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Median</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.medianApplications}</p>
+          <div className="bg-card p-3 rounded-lg border border-border">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Median</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{analytics.medianApplications}</p>
           </div>
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Most Comp.</p>
-            <p className="text-sm font-medium text-gray-900 truncate">
+          <div className="bg-card p-3 rounded-lg border border-border">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Most Comp.</p>
+            <p className="text-sm font-medium text-foreground truncate">
               {analytics.highestApplications?.psId || "—"}
             </p>
-            <p className="text-xs text-gray-500">{analytics.highestApplications?.count || 0} apps</p>
+            <p className="text-xs text-muted-foreground">{analytics.highestApplications?.count || 0} apps</p>
           </div>
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Least Comp.</p>
-            <p className="text-sm font-medium text-gray-900 truncate">
+          <div className="bg-card p-3 rounded-lg border border-border">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Least Comp.</p>
+            <p className="text-sm font-medium text-foreground truncate">
               {analytics.lowestApplications?.psId || "—"}
             </p>
-            <p className="text-xs text-gray-500">{analytics.lowestApplications?.count || 0} apps</p>
+            <p className="text-xs text-muted-foreground">{analytics.lowestApplications?.count || 0} apps</p>
           </div>
         </div>
       )}
 
       {/* Search & Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 mb-4">
+      <div className="bg-card rounded-lg border border-border p-3 mb-4">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
             <input
               type="text"
               placeholder="Search PS ID, title, org..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full pl-9 pr-4 py-2.5 sm:py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400"
+              className="w-full pl-9 pr-4 py-2.5 sm:py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400"
             />
           </div>
           <button
@@ -376,14 +376,14 @@ export function Dashboard() {
             className={clsx(
               "flex items-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm border rounded-lg transition min-h-0",
               showFilters || activeFilterCount > 0
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                ? "bg-primary text-primary-foreground border-gray-900"
+                : "bg-card text-muted-foreground border-border hover:bg-muted/50"
             )}
           >
             <SlidersHorizontal size={14} />
             <span className="hidden sm:inline">Filters</span>
             {activeFilterCount > 0 && (
-              <span className="bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              <span className="bg-card/20 text-primary-foreground text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {activeFilterCount}
               </span>
             )}
@@ -392,12 +392,12 @@ export function Dashboard() {
 
         {/* Expandable filter section */}
         {showFilters && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="mt-3 pt-3 border-t border-border/50">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
               <select
                 value={category}
                 onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+                className="text-sm px-3 py-2.5 sm:py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-card"
               >
                 <option value="">All Categories</option>
                 {categories.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -405,7 +405,7 @@ export function Dashboard() {
               <select
                 value={theme}
                 onChange={(e) => { setTheme(e.target.value); setPage(1); }}
-                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+                className="text-sm px-3 py-2.5 sm:py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-card"
               >
                 <option value="">All Themes</option>
                 {themes.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -413,7 +413,7 @@ export function Dashboard() {
               <select
                 value={organization}
                 onChange={(e) => { setOrganization(e.target.value); setPage(1); }}
-                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+                className="text-sm px-3 py-2.5 sm:py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-card"
               >
                 <option value="">All Organizations</option>
                 {organizations.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -421,7 +421,7 @@ export function Dashboard() {
               <select
                 value={competition}
                 onChange={(e) => { setCompetition(e.target.value); setPage(1); }}
-                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+                className="text-sm px-3 py-2.5 sm:py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-card"
               >
                 <option value="">All Competition</option>
                 <option value="Low">Low</option>
@@ -432,7 +432,7 @@ export function Dashboard() {
               <select
                 value={shortlisted}
                 onChange={(e) => { setShortlisted(e.target.value); setPage(1); }}
-                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+                className="text-sm px-3 py-2.5 sm:py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-card"
               >
                 <option value="">All</option>
                 <option value="yes">Shortlisted</option>
@@ -442,7 +442,7 @@ export function Dashboard() {
             {activeFilterCount > 0 && (
               <button
                 onClick={() => { setCategory(""); setTheme(""); setOrganization(""); setCompetition(""); setShortlisted(""); setPage(1); }}
-                className="mt-2 text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 min-h-0"
+                className="mt-2 text-xs text-muted-foreground hover:text-muted-foreground flex items-center gap-1 min-h-0"
               >
                 <X size={12} /> Clear all filters
               </button>
@@ -465,8 +465,8 @@ export function Dashboard() {
             className={clsx(
               "flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-full whitespace-nowrap border transition min-h-0",
               sortBy === field
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-600 border-gray-200"
+                ? "bg-primary text-primary-foreground border-gray-900"
+                : "bg-card text-muted-foreground border-border"
             )}
           >
             {label}
@@ -478,7 +478,7 @@ export function Dashboard() {
       {/* ═══ MOBILE: Card View ═══ */}
       <div className="sm:hidden space-y-2">
         {problems.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500 text-sm">
+          <div className="bg-card rounded-lg border border-border p-8 text-center text-muted-foreground text-sm">
             No problem statements found. Try adjusting filters.
           </div>
         ) : (
@@ -496,7 +496,7 @@ export function Dashboard() {
       </div>
 
       {/* ═══ DESKTOP: Table View ═══ */}
-      <div className="hidden sm:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="hidden sm:block bg-card rounded-lg border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="data-table w-full min-w-[900px]">
             <thead>
@@ -510,29 +510,29 @@ export function Dashboard() {
                 <ColumnHeader label="Growth" field="growth" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
                 <ColumnHeader label="Competition" field="competitionLevel" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
                 <ColumnHeader label="Updated" field="lastCheckedAt" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
-                <th className="px-3 py-2 text-sm font-medium text-gray-600 border-b border-gray-200 text-right">Actions</th>
+                <th className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {problems.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={10} className="px-4 py-8 text-center text-muted-foreground">
                     No problem statements found. Try adjusting filters.
                   </td>
                 </tr>
               ) : (
                 problems.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="font-mono text-sm font-medium text-gray-900">{p.psId}</td>
+                  <tr key={p.id} className="hover:bg-muted/50">
+                    <td className="font-mono text-sm font-medium text-foreground">{p.psId}</td>
                     <td className="max-w-md">
-                      <Link href={`/problems/${p.id}`} className="font-medium text-gray-900 hover:text-gray-700 block truncate">
+                      <Link href={`/problems/${p.id}`} className="font-medium text-foreground hover:text-muted-foreground block truncate">
                         {p.title}
                       </Link>
                     </td>
-                    <td className="text-sm text-gray-600 truncate max-w-[180px]" title={p.organization}>{p.organization}</td>
-                    <td className="text-sm text-gray-600 capitalize">{p.category}</td>
-                    <td className="text-sm text-gray-600 truncate max-w-[140px]" title={p.theme}>{p.theme}</td>
-                    <td className="font-mono text-sm font-medium text-gray-900">{p.applicationCount.toLocaleString()}</td>
+                    <td className="text-sm text-muted-foreground truncate max-w-[180px]" title={p.organization}>{p.organization}</td>
+                    <td className="text-sm text-muted-foreground capitalize">{p.category}</td>
+                    <td className="text-sm text-muted-foreground truncate max-w-[140px]" title={p.theme}>{p.theme}</td>
+                    <td className="font-mono text-sm font-medium text-foreground">{p.applicationCount.toLocaleString()}</td>
                     <td><GrowthIndicator current={p.applicationCount} previous={p.previousApplicationCount} /></td>
                     <td><CompetitionBadge level={p.competitionLevel} /></td>
                     <td><LastUpdated lastCheckedAt={p.lastCheckedAt} updateSource={p.updateSource} /></td>
@@ -544,14 +544,14 @@ export function Dashboard() {
                             if (res.ok) fetchData();
                           }}
                           className={clsx(
-                            "p-1.5 rounded hover:bg-gray-100 transition min-h-0",
-                            p.shortlist ? "text-yellow-500" : "text-gray-400 hover:text-yellow-500"
+                            "p-1.5 rounded hover:bg-muted transition min-h-0",
+                            p.shortlist ? "text-yellow-500" : "text-muted-foreground/70 hover:text-yellow-500"
                           )}
                           title={p.shortlist ? "Remove from shortlist" : "Add to shortlist"}
                         >
                           <Star size={16} fill={p.shortlist ? "currentColor" : "none"} />
                         </button>
-                        <Link href={`/problems/${p.id}`} className="p-1.5 text-gray-400 hover:text-gray-600" title="View details">
+                        <Link href={`/problems/${p.id}`} className="p-1.5 text-muted-foreground/70 hover:text-muted-foreground" title="View details">
                           <span className="sr-only">View</span>
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         </Link>
@@ -568,21 +568,21 @@ export function Dashboard() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-3 px-1 sm:px-4 py-3 flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-gray-500">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             Page {page}/{totalPages} <span className="hidden sm:inline">({totalCount} total)</span>
           </span>
           <div className="flex gap-1.5">
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="px-3 py-1.5 sm:py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-0"
+              className="px-3 py-1.5 sm:py-1 text-sm border border-border rounded-lg hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed min-h-0"
             >
               Prev
             </button>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
-              className="px-3 py-1.5 sm:py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-0"
+              className="px-3 py-1.5 sm:py-1 text-sm border border-border rounded-lg hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed min-h-0"
             >
               Next
             </button>

@@ -52,11 +52,11 @@ function CompetitionBadge({ level }: { level: string }) {
 }
 
 function GrowthBadge({ current, history }: { current: number; history: { timestamp: string; applicationCount: number }[] }) {
-  if (!history || history.length === 0) return <span className="text-xs text-gray-400">—</span>;
+  if (!history || history.length === 0) return <span className="text-xs text-muted-foreground/70">—</span>;
   const sorted = [...history].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   const oldest = sorted[0];
   const diff = current - oldest.applicationCount;
-  if (diff === 0) return <span className="text-xs text-gray-400">—</span>;
+  if (diff === 0) return <span className="text-xs text-muted-foreground/70">—</span>;
   return (
     <span className={clsx("text-xs font-medium flex items-center gap-0.5", diff > 0 ? "text-green-600" : "text-red-600")}>
       {diff > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
@@ -113,7 +113,7 @@ function ComparePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/70" />
       </div>
     );
   }
@@ -121,16 +121,16 @@ function ComparePage() {
   return (
     <div className="p-3 sm:p-4 md:p-6 pb-20 lg:pb-6">
       <div className="mb-5">
-        <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Compare Problem Statements</h1>
-        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Select 2–5 shortlisted PSs to compare side by side</p>
+        <h1 className="text-lg sm:text-xl font-semibold text-foreground">Compare Problem Statements</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Select 2–5 shortlisted PSs to compare side by side</p>
       </div>
 
       {shortlistedProblems.length === 0 ? (
         <div className="text-center py-12 sm:py-16">
           <GitCompareArrows className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm sm:text-base">No shortlisted problems yet.</p>
-          <p className="text-gray-400 text-xs sm:text-sm mt-1">Add some from the problem list or detail page.</p>
-          <Link href="/" className="inline-block mt-4 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition">
+          <p className="text-muted-foreground text-sm sm:text-base">No shortlisted problems yet.</p>
+          <p className="text-muted-foreground/70 text-xs sm:text-sm mt-1">Add some from the problem list or detail page.</p>
+          <Link href="/" className="inline-block mt-4 px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-gray-800 transition">
             Browse Problems →
           </Link>
         </div>
@@ -139,11 +139,11 @@ function ComparePage() {
           {/* ─── Selection: Chip-based picker (works on mobile + desktop) ─── */}
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Select to compare</span>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Select to compare</span>
               {selectedIds.length > 0 && (
                 <button
                   onClick={() => setSelectedIds([])}
-                  className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 min-h-0"
+                  className="text-xs text-muted-foreground/70 hover:text-muted-foreground flex items-center gap-1 min-h-0"
                 >
                   <X size={12} /> Clear
                 </button>
@@ -159,26 +159,26 @@ function ComparePage() {
                     className={clsx(
                       "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition min-h-0",
                       isSelected
-                        ? "border-gray-900 bg-gray-50 ring-1 ring-gray-900"
-                        : "border-gray-200 bg-white hover:bg-gray-50",
+                        ? "border-gray-900 bg-muted/50 ring-1 ring-gray-900"
+                        : "border-border bg-card hover:bg-muted/50",
                       selectedIds.length >= 5 && !isSelected && "opacity-40 cursor-not-allowed"
                     )}
                     disabled={selectedIds.length >= 5 && !isSelected}
                   >
                     <div className={clsx(
                       "flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition",
-                      isSelected ? "bg-gray-900 border-gray-900" : "border-gray-300"
+                      isSelected ? "bg-primary border-gray-900" : "border-input"
                     )}>
-                      {isSelected && <Check size={12} className="text-white" />}
+                      {isSelected && <Check size={12} className="text-primary-foreground" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-gray-500">{p.psId}</span>
+                        <span className="text-xs font-mono text-muted-foreground">{p.psId}</span>
                         <CompetitionBadge level={p.competitionLevel} />
                       </div>
-                      <p className="text-sm text-gray-900 truncate">{p.title}</p>
+                      <p className="text-sm text-foreground truncate">{p.title}</p>
                     </div>
-                    <span className="flex-shrink-0 text-sm font-mono font-medium text-gray-700">
+                    <span className="flex-shrink-0 text-sm font-mono font-medium text-muted-foreground">
                       {p.applicationCount.toLocaleString()}
                     </span>
                   </button>
@@ -186,7 +186,7 @@ function ComparePage() {
               })}
             </div>
             {selectedIds.length > 0 && (
-              <p className="text-xs text-gray-400 mt-2">{selectedIds.length}/5 selected</p>
+              <p className="text-xs text-muted-foreground/70 mt-2">{selectedIds.length}/5 selected</p>
             )}
           </div>
 
@@ -194,8 +194,8 @@ function ComparePage() {
           {selected.length === 0 ? (
             <div className="text-center py-10 sm:py-12">
               <GitCompareArrows className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-1">Select problem statements to compare</h2>
-              <p className="text-gray-500 text-xs sm:text-sm">Choose 2–5 PSs from above</p>
+              <h2 className="text-base sm:text-lg font-medium text-foreground mb-1">Select problem statements to compare</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">Choose 2–5 PSs from above</p>
             </div>
           ) : selected.length === 1 ? (
             <div className="text-center py-10 text-yellow-600 text-sm">
@@ -206,22 +206,22 @@ function ComparePage() {
               {/* ═══ MOBILE: Stacked comparison cards ═══ */}
               <div className="sm:hidden space-y-4 mb-6">
                 {selected.map((p) => (
-                  <div key={p.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div key={p.id} className="bg-card rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <Link href={`/problems/${p.id}`} className="text-xs font-mono text-gray-500 hover:underline">{p.psId}</Link>
+                      <Link href={`/problems/${p.id}`} className="text-xs font-mono text-muted-foreground hover:underline">{p.psId}</Link>
                       <button
                         onClick={() => toggleSelection(p.id)}
-                        className="text-gray-400 hover:text-gray-600 min-h-0 p-1"
+                        className="text-muted-foreground/70 hover:text-muted-foreground min-h-0 p-1"
                       >
                         <X size={14} />
                       </button>
                     </div>
-                    <p className="text-sm font-medium text-gray-900 mb-3 line-clamp-2">{p.title}</p>
+                    <p className="text-sm font-medium text-foreground mb-3 line-clamp-2">{p.title}</p>
                     <div className="grid grid-cols-2 gap-2">
                       {metrics.map((m) => (
                         <div key={m.key} className="py-1.5">
-                          <p className="text-[10px] text-gray-400 uppercase tracking-wider">{m.label}</p>
-                          <div className="text-sm text-gray-900 mt-0.5">
+                          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">{m.label}</p>
+                          <div className="text-sm text-foreground mt-0.5">
                             {m.key === "applicationCount" ? (
                               <div className="flex items-center gap-2">
                                 <span className="font-mono font-bold">{m.format(p.applicationCount)}</span>
@@ -241,28 +241,28 @@ function ComparePage() {
               </div>
 
               {/* ═══ DESKTOP: Table comparison ═══ */}
-              <div className="hidden sm:block bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+              <div className="hidden sm:block bg-card rounded-lg border border-border overflow-hidden mb-6">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200">
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-48">Metric</th>
+                      <tr className="bg-muted/50 border-b border-border">
+                        <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase w-48">Metric</th>
                         {selected.map((p) => (
-                          <th key={p.id} className="px-3 py-2 text-left text-sm font-medium text-gray-900">
+                          <th key={p.id} className="px-3 py-2 text-left text-sm font-medium text-foreground">
                             <Link href={`/problems/${p.id}`} className="hover:underline">
                               {p.psId}
                             </Link>
-                            <div className="text-xs text-gray-500 truncate max-w-xs">{p.title}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-xs">{p.title}</div>
                           </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {metrics.map((m) => (
-                        <tr key={m.key} className="border-b border-gray-100">
-                          <td className="px-3 py-2 text-sm font-medium text-gray-600">{m.label}</td>
+                        <tr key={m.key} className="border-b border-border/50">
+                          <td className="px-3 py-2 text-sm font-medium text-muted-foreground">{m.label}</td>
                           {selected.map((p) => (
-                            <td key={p.id} className="px-3 py-2 text-sm text-gray-900">
+                            <td key={p.id} className="px-3 py-2 text-sm text-foreground">
                               {m.key === "applicationCount" ? (
                                 <>
                                   <span className="font-mono">{m.format(p.applicationCount)}</span>
@@ -278,10 +278,10 @@ function ComparePage() {
                         </tr>
                       ))}
                       {/* Growth metrics */}
-                      <tr className="border-b border-gray-100 bg-gray-50">
-                        <td className="px-3 py-2 text-sm font-medium text-gray-600">Growth (total)</td>
+                      <tr className="border-b border-border/50 bg-muted/50">
+                        <td className="px-3 py-2 text-sm font-medium text-muted-foreground">Growth (total)</td>
                         {selected.map((p) => (
-                          <td key={p.id} className="px-3 py-2 text-sm text-gray-900">
+                          <td key={p.id} className="px-3 py-2 text-sm text-foreground">
                             {p.history && p.history.length > 1 ? (
                               () => {
                                 const sorted = [...p.history].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -289,13 +289,13 @@ function ComparePage() {
                                 const diff = p.applicationCount - oldest.applicationCount;
                                 const pct = oldest.applicationCount > 0 ? Math.round((diff / oldest.applicationCount) * 1000) / 10 : 0;
                                 return (
-                                  <span className={clsx("font-medium", diff > 0 ? "text-green-600" : diff < 0 ? "text-red-600" : "text-gray-400")}>
+                                  <span className={clsx("font-medium", diff > 0 ? "text-green-600" : diff < 0 ? "text-red-600" : "text-muted-foreground/70")}>
                                     {diff > 0 ? "+" : ""}{diff} ({pct > 0 ? "+" : ""}{pct}%)
                                   </span>
                                 );
                               }
                             )() : (
-                              <span className="text-gray-400">—</span>
+                              <span className="text-muted-foreground/70">—</span>
                             )}
                           </td>
                         ))}
@@ -307,8 +307,8 @@ function ComparePage() {
 
               {/* Application history chart - responsive */}
               {selected.some((p) => p.history && p.history.length >= 2) && (
-                <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Application History Comparison</h3>
+                <div className="bg-card rounded-lg border border-border p-3 sm:p-4">
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Application History Comparison</h3>
                   <div className="h-48 sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
