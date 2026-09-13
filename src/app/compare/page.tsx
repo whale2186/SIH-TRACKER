@@ -64,31 +64,31 @@ function GrowthBadge({ current, history }: { current: number; history: { timesta
 }
 
 function ComparePage() {
-  const [allProblems, setAllProblems] = useState<ProblemStatement[]>([]);
+  const [shortlistedProblems, setShortlistedProblems] = useState<ProblemStatement[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
-  async function fetchAll() {
+  async function fetchShortlisted() {
     try {
-      const res = await fetch("/api/problems?limit=500");
+      const res = await fetch("/api/shortlist");
       if (res.ok) {
         const data = await res.json();
-        setAllProblems(data.data);
+        setShortlistedProblems(data);
       }
     } catch (e) {
-      console.error("Failed to fetch", e);
+      console.error("Failed to fetch shortlist", e);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchAll();
+    fetchShortlisted();
   }, []);
 
   const selected = useMemo(
-    () => allProblems.filter((p) => selectedIds.includes(p.id)),
-    [allProblems, selectedIds]
+    () => shortlistedProblems.filter((p) => selectedIds.includes(p.id)),
+    [shortlistedProblems, selectedIds]
   );
 
   const metrics = [
@@ -112,35 +112,45 @@ function ComparePage() {
     <div className="p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Compare Problem Statements</h1>
-          <p className="text-sm text-gray-500">Select 2-5 problem statements to compare side by side</p>
+          <h1 className="text-xl font-semibold text-gray-900">Compare Shortlisted Problem Statements</h1>
+          <p className="text-sm text-gray-500">Select 2-5 shortlisted PSs to compare side by side</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <select
-            multiple
-            value={selectedIds.map(String)}
-            onChange={(e) => {
-              const options = Array.from(e.target.selectedOptions).map((o) => parseInt(o.value));
-              setSelectedIds(options.slice(0, 5));
-            }}
-            className="flex-1 min-w-[250px] h-24 px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 text-sm"
-            size={8}
-          >
-            {allProblems.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.psId} - {p.title}
-              </option>
-            ))}
-          </select>
-          {selectedIds.length > 0 && (
-            <span className="text-sm text-gray-500 self-center">
-              {selectedIds.length}/5 selected
-            </span>
-          )}
-        </div>
+        {shortlistedProblems.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <GitCompareArrows className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <p>No shortlisted problems yet. Add some from the problem list or detail page.</p>
+            <Link href="/problems" className="text-sm text-blue-600 hover:underline mt-2 inline-block">
+              Browse Problems →
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            <select
+              multiple
+              value={selectedIds.map(String)}
+              onChange={(e) => {
+                const options = Array.from(e.target.selectedOptions).map((o) => parseInt(o.value));
+                setSelectedIds(options.slice(0, 5));
+              }}
+              className="flex-1 min-w-[250px] h-24 px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 text-sm"
+              size={8}
+            >
+              {shortlistedProblems.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.psId} - {p.title}
+                </option>
+              ))}
+            </select>
+            {selectedIds.length > 0 && (
+              <span className="text-sm text-gray-500 self-center">
+                {selectedIds.length}/5 selected
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
-      {selected.length === 0 ? (
+      {shortlistedProblems.length === 0 ? null : selected.length === 0 ? (
         <div className="text-center py-12">
           <GitCompareArrows className="h-16 w-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-lg font-medium text-gray-900 mb-2">Select problem statements to compare</h2>
