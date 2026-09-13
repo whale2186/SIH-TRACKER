@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ProblemStatement {
+  id                       Int                @id @default(autoincrement())
+  psId                     String             @unique @map("ps_id")
+  title                    String
+  description              String             @default("")
+  descriptionHtml          String             @default("") @map("description_html")
+  organization             String             @default("")
+  department               String             @default("")
+  category                 String             @default("")
+  theme                    String             @default("")
+  type                     String             @default("")
+  sourceUrl                String             @default("") @map("source_url")
+  applicationCount         Int                @default(0) @map("application_count")
+  previousApplicationCount Int                @default(0) @map("previous_application_count")
+  maxApplications          Int                @default(500) @map("max_applications")
+  competitionLevel         String             @default("Low") @map("competition_level")
+  status                   String             @default("active")
+  datasetInfo              String             @default("") @map("dataset_info")
+  datasetUrl               String             @default("") @map("dataset_url")
+  youtubeLinks             String             @default("") @map("youtube_links")
+  resourceLinks            String             @default("") @map("resource_links")
+  contactInfo              String             @default("") @map("contact_info")
+  updateSource             String             @default("manual") @map("update_source")
+  createdAt                DateTime           @default(now()) @map("created_at")
+  updatedAt                DateTime           @updatedAt @map("updated_at")
+  lastCheckedAt            DateTime?          @map("last_checked_at")
+
+  history                  ApplicationHistory[]
+  shortlist                Shortlist?
+  summary                  GeminiSummary?
+
+  @@map("problem_statements")
+}
+
+model ApplicationHistory {
+  id                 Int              @id @default(autoincrement())
+  problemStatementId Int              @map("problem_statement_id")
+  applicationCount   Int              @map("application_count")
+  previousCount      Int              @default(0) @map("previous_count")
+  change             Int              @default(0)
+  timestamp          DateTime         @default(now())
+  source             String           @default("manual")
+
+  problemStatement   ProblemStatement @relation(fields: [problemStatementId], references: [id], onDelete: Cascade)
+
+  @@map("application_history")
+}
+
+model Shortlist {
+  id                 Int              @id @default(autoincrement())
+  problemStatementId Int              @unique @map("problem_statement_id")
+  priority           String           @default("Medium")
+  notes              String           @default("")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  problemStatement   ProblemStatement @relation(fields: [problemStatementId], references: [id], onDelete: Cascade)
+
+  @@map("shortlist")
+}
+
+model GeminiSummary {
+  id                 Int              @id @default(autoincrement())
+  problemStatementId Int              @unique @map("problem_statement_id")
+  summary            String
+  model              String           @default("gemini-1.5-flash")
+  generatedAt        DateTime         @default(now()) @map("generated_at")
+
+  problemStatement   ProblemStatement @relation(fields: [problemStatementId], references: [id], onDelete: Cascade)
+
+  @@map("gemini_summaries")
+}
+
+model Settings {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+
+  @@map("settings")
+}
+
+model SyncLog {
+  id        Int      @id @default(autoincrement())
+  status    String
+  message   String   @default("")
+  count     Int      @default(0)
+  timestamp DateTime @default(now())
+
+  @@map("sync_log")
+}
