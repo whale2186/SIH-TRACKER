@@ -447,7 +447,7 @@ export function ProblemDetailClient({ problem }: Props) {
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), "Applications"]}
+                    formatter={(value: any) => [value?.toLocaleString() || "0", "Applications"]}
                     contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "4px" }}
                   />
                   <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -516,7 +516,7 @@ export function ProblemDetailClient({ problem }: Props) {
                 </div>
                 <textarea
                   value={problem.shortlist.notes || ""}
-                  onChange={(e) => handleShortlistUpdate(problem.shortlist.priority, e.target.value)}
+                  onChange={(e) => handleShortlistUpdate(problem.shortlist?.priority || "Medium", e.target.value)}
                   className="w-full min-h-[100px] p-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
                   placeholder="Add your personal notes..."
                 />
@@ -547,8 +547,8 @@ export function ProblemDetailClient({ problem }: Props) {
             <InfoRow label="Type"><span className="capitalize">{problem.type}</span></InfoRow>
             <InfoRow label="Max Applications">{problem.maxApplications.toLocaleString()}</InfoRow>
             <InfoRow label="Source" href={problem.sourceUrl}>{problem.sourceUrl}</InfoRow>
-            <InfoRow label="Created">{formatDistanceToNow(new Date(problem.createdAt), { addSuffix: true })}</InfoRow>
-            <InfoRow label="Last Updated">{formatDistanceToNow(new Date(problem.updatedAt), { addSuffix: true })}</InfoRow>
+            <InfoRow label="Created">{problem.createdAt ? formatDistanceToNow(new Date(problem.createdAt), { addSuffix: true }) : "—"}</InfoRow>
+            <InfoRow label="Last Updated">{problem.updatedAt ? formatDistanceToNow(new Date(problem.updatedAt), { addSuffix: true }) : "—"}</InfoRow>
           </div>
         </section>
       </div>
