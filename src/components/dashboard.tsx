@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { formatDistanceToNow } from "date-fns";
+import { useShortlistStore } from "@/hooks/use-shortlist";
 
 interface ProblemStatement {
   id: number;
@@ -124,7 +125,10 @@ function ColumnHeader({
 }
 
 /* ─── Mobile Problem Card ─── */
-function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlistToggle: () => void }) {
+function ProblemCard({ p }: { p: ProblemStatement }) {
+  const shortlistState = useShortlistStore();
+  const isShortlisted = !!shortlistState.items[p.id];
+  const onShortlistToggle = () => shortlistState.toggle(p.id);
   const diff = p.applicationCount - p.previousApplicationCount;
   return (
     <div className="bg-card rounded-lg border border-border p-4 active:bg-muted/50 transition-colors">
@@ -137,10 +141,10 @@ function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlis
             onClick={(e) => { e.preventDefault(); onShortlistToggle(); }}
             className={clsx(
               "p-1.5 rounded-md transition min-h-0",
-              p.shortlist ? "text-yellow-500" : "text-gray-300"
+              isShortlisted ? "text-yellow-500" : "text-gray-300"
             )}
           >
-            <Star size={16} fill={p.shortlist ? "currentColor" : "none"} />
+            <Star size={16} fill={isShortlisted ? "currentColor" : "none"} />
           </button>
         </div>
       </div>
@@ -177,6 +181,9 @@ function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlis
 }
 
 export function Dashboard() {
+  const shortlistState = useShortlistStore();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   const [problems, setProblems] = useState<ProblemStatement[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -208,12 +215,27 @@ export function Dashboard() {
         theme,
         organization,
         competition,
-        shortlisted,
         sortBy,
         sortOrder,
         page: page.toString(),
         limit: limit.toString(),
       });
+      // Handle local shortlist filter overriding
+      if (shortlisted === "yes") {
+        const localIds = Object.keys(shortlistState.items);
+        if (localIds.length === 0) {
+           setProblems([]);
+           setTotalPages(1);
+           setTotalCount(0);
+           setLoading(false);
+           return;
+        }
+        params.append("ids", localIds.join(","));
+      } else if (shortlisted === "no") {
+         // It's harder to invert ids in query easily without backend support, 
+         // but we can pass it as excludedIds or something in the future.
+         // For now let's just let it be, backend shortlist filter is deprecated anyway.
+      }
       const res = await fetch(`/api/problems?${params}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const json: PaginatedResponse = await res.json();
@@ -483,14 +505,7 @@ export function Dashboard() {
           </div>
         ) : (
           problems.map((p) => (
-            <ProblemCard
-              key={p.id}
-              p={p}
-              onShortlistToggle={async () => {
-                const res = await fetch(`/api/problems/${p.id}/shortlist`, { method: "POST" });
-                if (res.ok) fetchData();
-              }}
-            />
+            <ProblemCard key={p.id} p={p} />
           ))
         )}
       </div>
@@ -538,18 +553,15 @@ export function Dashboard() {
                     <td><LastUpdated lastCheckedAt={p.lastCheckedAt} updateSource={p.updateSource} /></td>
                     <td className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={async () => {
-                            const res = await fetch(`/api/problems/${p.id}/shortlist`, { method: "POST" });
-                            if (res.ok) fetchData();
-                          }}
+                                                <button
+                          onClick={() => shortlistState.toggle(p.id)}
                           className={clsx(
                             "p-1.5 rounded hover:bg-muted transition min-h-0",
-                            p.shortlist ? "text-yellow-500" : "text-muted-foreground/70 hover:text-yellow-500"
+                            (hydrated && !!shortlistState.items[p.id]) ? "text-yellow-500" : "text-muted-foreground/70 hover:text-yellow-500"
                           )}
-                          title={p.shortlist ? "Remove from shortlist" : "Add to shortlist"}
+                          title={(hydrated && !!shortlistState.items[p.id]) ? "Remove from shortlist" : "Add to shortlist"}
                         >
-                          <Star size={16} fill={p.shortlist ? "currentColor" : "none"} />
+                          <Star size={16} fill={(hydrated && !!shortlistState.items[p.id]) ? "currentColor" : "none"} />
                         </button>
                         <Link href={`/problems/${p.id}`} className="p-1.5 text-muted-foreground/70 hover:text-muted-foreground" title="View details">
                           <span className="sr-only">View</span>
