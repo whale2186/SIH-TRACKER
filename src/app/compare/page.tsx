@@ -12,6 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import clsx from "clsx";
+import { useShortlistStore } from "@/hooks/use-shortlist";
 import {
   BarChart,
   Bar,
@@ -66,27 +67,42 @@ function GrowthBadge({ current, history }: { current: number; history: { timesta
 }
 
 function ComparePage() {
+  const shortlistState = useShortlistStore();
+  const [hydrated, setHydrated] = useState(false);
   const [shortlistedProblems, setShortlistedProblems] = useState<ProblemStatement[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
-  async function fetchShortlisted() {
-    try {
-      const res = await fetch("/api/shortlist");
-      if (res.ok) {
-        const data = await res.json();
-        setShortlistedProblems(data);
-      }
-    } catch (e) {
-      console.error("Failed to fetch shortlist", e);
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
-    fetchShortlisted();
-  }, []);
+    if (!hydrated) return;
+
+    const ids = Object.keys(shortlistState.items);
+    if (ids.length === 0) {
+      setShortlistedProblems([]);
+      setLoading(false);
+      return;
+    }
+
+    async function fetchProblems() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/problems?ids=${ids.join(",")}&limit=500`);
+        if (!res.ok) throw new Error("Failed to fetch");
+        const json = await res.json();
+        setShortlistedProblems(json.data);
+      } catch (e) {
+        console.error("Failed to load freshly synced stats", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchProblems();
+  }, [hydrated, shortlistState.items]);
 
   const selected = useMemo(
     () => shortlistedProblems.filter((p) => selectedIds.includes(p.id)),
