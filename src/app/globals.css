@@ -67,3 +67,107 @@ body {
 .ps-description strong {
   font-weight: 600;
 }
+
+/* Mobile improvements */
+@media (max-width: 640px) {
+  /* Increase touch targets */
+  button, [role="button"] {
+    @apply min-h-[44px];
+  }
+  
+  /* Better typography on small screens */
+  h1 { @apply text-2xl; }
+  h2 { @apply text-xl; }
+  h3 { @apply text-lg; }
+  
+  /* Reduce padding in containers */
+  .container {
+    @apply px-3;
+  }
+  
+  /* Full width inputs and selects on mobile */
+  input, select, textarea {
+    @apply w-full;
+  }
+  
+  /* Better spacing for grids */
+  .grid {
+    @apply gap-3;
+  }
+  
+  /* Cards instead of tables on mobile */
+  .mobile-card-view {
+    @apply space-y-4;
+  }
+  
+  .mobile-card {
+    @apply bg-white rounded border border-gray-200 p-4;
+  }
+  
+  .mobile-card-header {
+    @apply flex items-center justify-between mb-2;
+  }
+  
+  .mobile-card-title {
+    @apply font-medium text-gray-900;
+  }
+  
+  .mobile-card-meta {
+    @apply text-sm text-gray-500 flex flex-wrap gap-2;
+  }
+  
+  .mobile-chip {
+    @apply px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs;
+  }
+  
+  /* Hide table on mobile, show card view */
+  .hide-on-mobile {
+    @apply hidden;
+  }
+  
+  .show-on-mobile {
+    @apply block;
+  }
+  
+  /* Better bottom navigation spacing */
+  .bottom-nav-item {
+    @apply flex flex-col items-center gap-0.5 py-1.5 px-2;
+  }
+  
+  .bottom-nav-label {
+    @apply text-[10px] font-medium;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111827;
+    --foreground: #f9fafb;
+  }
+  
+  body {
+    color: var(--foreground);
+    background: var(--background);
+  }
+  
+  .data-table th {
+    @apply bg-gray-800;
+  }
+  
+  .data-table td {
+    @apply border-b border-gray-700;
+  }
+  
+  .data-table tr:hover td {
+    @apply bg-gray-800/50;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #6b7280;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}

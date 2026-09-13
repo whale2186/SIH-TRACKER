@@ -57,28 +57,28 @@ function SettingsPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-3xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">Settings</h1>
+    <div className="p-3 sm:p-4 md:p-6 pb-20 lg:pb-6 max-w-3xl mx-auto">
+      <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Settings</h1>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Gemini Settings */}
-        <section className="bg-white rounded border border-gray-200 p-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">Gemini Configuration</h2>
+        <section className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+          <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4 pb-2 border-b border-gray-100">Gemini Configuration</h2>
           <div className="flex items-start gap-3">
             {geminiConfig.configured ? (
-              <CheckCircle className="text-green-600 mt-0.5" size={20} />
+              <CheckCircle className="text-green-600 mt-0.5 flex-shrink-0" size={20} />
             ) : (
-              <AlertTriangle className="text-yellow-600 mt-0.5" size={20} />
+              <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
             )}
-            <div>
+            <div className="min-w-0">
               <p className="font-medium text-gray-900">
                 {geminiConfig.configured ? "Connected" : "Not configured"}
               </p>
               <p className="text-sm text-gray-500 mt-1">{geminiConfig.message}</p>
               {!geminiConfig.configured && (
                 <div className="mt-3 bg-gray-50 p-3 rounded text-sm text-gray-700">
-                  <p className="mb-2">To enable AI summarization, you must configure the Gemini API key in your server environment.</p>
-                  <ol className="list-decimal pl-4 space-y-1">
+                  <p className="mb-2">To enable AI summarization, configure the Gemini API key in your server environment.</p>
+                  <ol className="list-decimal pl-4 space-y-1 text-xs">
                     <li>Get an API key from Google AI Studio</li>
                     <li>Open <code className="bg-white px-1 rounded border border-gray-200">.env</code> in the project root</li>
                     <li>Add <code className="bg-white px-1 rounded border border-gray-200">GEMINI_API_KEY=your_key_here</code></li>
@@ -91,52 +91,32 @@ function SettingsPage() {
         </section>
 
         {/* Competition Thresholds */}
-        <section className="bg-white rounded border border-gray-200 p-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">Competition Thresholds</h2>
-          <p className="text-sm text-gray-500 mb-4">
+        <section className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+          <h2 className="text-sm font-semibold text-gray-900 mb-3 sm:mb-4 pb-2 border-b border-gray-100">Competition Thresholds</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
             These thresholds determine how the competition level is calculated based on application count.
             Updating these will recalculate all existing problem statements.
           </p>
 
           <div className="space-y-3">
-            <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">Low</label>
-              <input
-                type="number"
-                value={thresholds.low}
-                onChange={(e) => setThresholds({ ...thresholds, low: parseInt(e.target.value) || 0 })}
-                className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 max-w-[150px]"
-              />
-            </div>
-            <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">Medium</label>
-              <input
-                type="number"
-                value={thresholds.medium}
-                onChange={(e) => setThresholds({ ...thresholds, medium: parseInt(e.target.value) || 0 })}
-                className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 max-w-[150px]"
-              />
-            </div>
-            <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">High</label>
-              <input
-                type="number"
-                value={thresholds.high}
-                onChange={(e) => setThresholds({ ...thresholds, high: parseInt(e.target.value) || 0 })}
-                className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 max-w-[150px]"
-              />
-            </div>
-            <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">Very High</label>
-              <input
-                type="number"
-                value={thresholds.veryHigh}
-                onChange={(e) => setThresholds({ ...thresholds, veryHigh: parseInt(e.target.value) || 0 })}
-                className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 max-w-[150px]"
-              />
-            </div>
+            {[
+              { key: "low", label: "Low" },
+              { key: "medium", label: "Medium" },
+              { key: "high", label: "High" },
+              { key: "veryHigh", label: "Very High" },
+            ].map(({ key, label }) => (
+              <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="text-sm font-medium text-gray-700 w-full sm:w-[80px] flex-shrink-0">{label}</label>
+                <input
+                  type="number"
+                  value={thresholds[key as keyof typeof thresholds]}
+                  onChange={(e) => setThresholds({ ...thresholds, [key]: parseInt(e.target.value) || 0 })}
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10"
+                />
+              </div>
+            ))}
 
-            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="text-sm">
                 {saveStatus === "success" && <span className="text-green-600">Saved successfully!</span>}
                 {saveStatus === "error" && <span className="text-red-600">Failed to save.</span>}
@@ -144,7 +124,7 @@ function SettingsPage() {
               <button
                 onClick={handleSaveThresholds}
                 disabled={saving}
-                className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50 flex items-center gap-2"
+                className="w-full sm:w-auto px-4 py-2.5 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-700 disabled:opacity-50 flex items-center justify-center gap-2 min-h-0"
               >
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                 Save Thresholds

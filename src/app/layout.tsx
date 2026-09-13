@@ -7,7 +7,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SIH 2026 Tracker",
-  description: "Track Smart India Hackathon 2026 Problem Statements",
+  description: "Smart India Hackathon 2026 Problem Statement Tracker",
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
 };
 
 export default function RootLayout({
@@ -16,11 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-gray-50 text-gray-900`}>
-        <div className="flex h-screen overflow-hidden">
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} h-full antialiased`}>
+        <div className="flex h-full">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
             {children}
           </main>
         </div>

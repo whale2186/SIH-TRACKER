@@ -13,6 +13,8 @@ import {
   AlertTriangle,
   TrendingUp,
   TrendingDown,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 import { formatDistanceToNow } from "date-fns";
@@ -121,6 +123,59 @@ function ColumnHeader({
   );
 }
 
+/* ─── Mobile Problem Card ─── */
+function ProblemCard({ p, onShortlistToggle }: { p: ProblemStatement; onShortlistToggle: () => void }) {
+  const diff = p.applicationCount - p.previousApplicationCount;
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4 active:bg-gray-50 transition-colors">
+      {/* Top row: PS ID + shortlist */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-mono text-gray-500">{p.psId}</span>
+        <div className="flex items-center gap-2">
+          <CompetitionBadge level={p.competitionLevel} />
+          <button
+            onClick={(e) => { e.preventDefault(); onShortlistToggle(); }}
+            className={clsx(
+              "p-1.5 rounded-md transition min-h-0",
+              p.shortlist ? "text-yellow-500" : "text-gray-300"
+            )}
+          >
+            <Star size={16} fill={p.shortlist ? "currentColor" : "none"} />
+          </button>
+        </div>
+      </div>
+
+      {/* Title */}
+      <Link href={`/problems/${p.id}`} className="block mb-2">
+        <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">{p.title}</h3>
+      </Link>
+
+      {/* Org */}
+      <p className="text-xs text-gray-500 truncate mb-3">{p.organization}</p>
+
+      {/* Stats row */}
+      <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+        <div className="flex items-center gap-4">
+          <div>
+            <p className="text-lg font-bold font-mono text-gray-900 leading-none">{p.applicationCount.toLocaleString()}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">applications</p>
+          </div>
+          {diff !== 0 && p.previousApplicationCount > 0 && (
+            <div className={clsx("text-xs font-medium", diff > 0 ? "text-green-600" : "text-red-600")}>
+              {diff > 0 ? <TrendingUp size={12} className="inline mr-0.5" /> : <TrendingDown size={12} className="inline mr-0.5" />}
+              {diff > 0 ? "+" : ""}{diff}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] capitalize">{p.category}</span>
+          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] max-w-[80px] truncate">{p.theme}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Dashboard() {
   const [problems, setProblems] = useState<ProblemStatement[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -208,7 +263,6 @@ export function Dashboard() {
       case "fastest":
         setSortBy("applicationCount");
         setSortOrder("desc");
-        // Could add growth-based sort
         break;
       case "recent":
         setSortBy("updatedAt");
@@ -220,6 +274,8 @@ export function Dashboard() {
     }
     setPage(1);
   }
+
+  const activeFilterCount = [category, theme, organization, competition, shortlisted].filter(Boolean).length;
 
   const categories = Array.from(new Set(problems.map((p) => p.category).filter(Boolean))).sort();
   const themes = Array.from(new Set(problems.map((p) => p.theme).filter(Boolean))).sort();
@@ -234,66 +290,66 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3 sm:p-4 md:p-6 pb-20 lg:pb-6">
       {/* Header */}
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">SIH 2026 Tracker</h1>
-          <p className="text-sm text-gray-500">{totalCount} problem statements tracked</p>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">SIH 2026 Tracker</h1>
+          <p className="text-xs sm:text-sm text-gray-500">{totalCount} problem statements tracked</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           <button
             onClick={() => applyQuickSort("lowest")}
-            className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+            className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 min-h-0"
             title="Lowest applications first"
           >
             Lowest Apps
           </button>
           <button
             onClick={() => applyQuickSort("recent")}
-            className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+            className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 min-h-0"
             title="Recently updated"
           >
-            Recently Updated
+            Recent
           </button>
           <button
             onClick={() => applyQuickSort("shortlist")}
-            className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+            className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 min-h-0"
             title="My shortlist only"
           >
-            My Shortlist
+            ★ Shortlist
           </button>
         </div>
       </div>
 
       {/* Analytics Summary */}
       {analytics && (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
-          <div className="bg-white p-3 rounded border border-gray-200">
-            <p className="text-xs text-gray-500">Tracked PSs</p>
-            <p className="text-2xl font-bold text-gray-900">{analytics.totalPS}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-4">
+          <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Tracked</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.totalPS}</p>
           </div>
-          <div className="bg-white p-3 rounded border border-gray-200">
-            <p className="text-xs text-gray-500">Total Applications</p>
-            <p className="text-2xl font-bold text-gray-900">{analytics.totalApplications.toLocaleString()}</p>
+          <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Total Apps</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.totalApplications.toLocaleString()}</p>
           </div>
-          <div className="bg-white p-3 rounded border border-gray-200">
-            <p className="text-xs text-gray-500">Avg Applications</p>
-            <p className="text-2xl font-bold text-gray-900">{analytics.averageApplications}</p>
+          <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Avg Apps</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.averageApplications}</p>
           </div>
-          <div className="bg-white p-3 rounded border border-gray-200">
-            <p className="text-xs text-gray-500">Median</p>
-            <p className="text-2xl font-bold text-gray-900">{analytics.medianApplications}</p>
+          <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Median</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.medianApplications}</p>
           </div>
-          <div className="bg-white p-3 rounded border border-gray-200">
-            <p className="text-xs text-gray-500">Most Competitive</p>
+          <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Most Comp.</p>
             <p className="text-sm font-medium text-gray-900 truncate">
               {analytics.highestApplications?.psId || "—"}
             </p>
             <p className="text-xs text-gray-500">{analytics.highestApplications?.count || 0} apps</p>
           </div>
-          <div className="bg-white p-3 rounded border border-gray-200">
-            <p className="text-xs text-gray-500">Least Competitive</p>
+          <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Least Comp.</p>
             <p className="text-sm font-medium text-gray-900 truncate">
               {analytics.lowestApplications?.psId || "—"}
             </p>
@@ -303,69 +359,144 @@ export function Dashboard() {
       )}
 
       {/* Search & Filters */}
-      <div className="bg-white rounded border border-gray-200 p-3 mb-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-lg border border-gray-200 p-3 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search PS ID, title, org, theme, category..."
+              placeholder="Search PS ID, title, org..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
+              className="w-full pl-9 pr-4 py-2.5 sm:py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400"
             />
           </div>
-          <div className="flex flex-wrap gap-2 md:flex-nowrap">
-            <select
-              value={category}
-              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-              className="text-sm px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
-            >
-              <option value="">All Categories</option>
-              {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <select
-              value={theme}
-              onChange={(e) => { setTheme(e.target.value); setPage(1); }}
-              className="text-sm px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 max-w-xs"
-            >
-              <option value="">All Themes</option>
-              {themes.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <select
-              value={organization}
-              onChange={(e) => { setOrganization(e.target.value); setPage(1); }}
-              className="text-sm px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900 max-w-xs"
-            >
-              <option value="">All Organizations</option>
-              {organizations.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <select
-              value={competition}
-              onChange={(e) => { setCompetition(e.target.value); setPage(1); }}
-              className="text-sm px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
-            >
-              <option value="">All Competition</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Very High">Very High</option>
-            </select>
-            <select
-              value={shortlisted}
-              onChange={(e) => { setShortlisted(e.target.value); setPage(1); }}
-              className="text-sm px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-gray-900"
-            >
-              <option value="">All</option>
-              <option value="yes">Shortlisted</option>
-              <option value="no">Not Shortlisted</option>
-            </select>
-          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={clsx(
+              "flex items-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm border rounded-lg transition min-h-0",
+              showFilters || activeFilterCount > 0
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+            )}
+          >
+            <SlidersHorizontal size={14} />
+            <span className="hidden sm:inline">Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Expandable filter section */}
+        {showFilters && (
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+              <select
+                value={category}
+                onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+              >
+                <option value="">All Categories</option>
+                {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <select
+                value={theme}
+                onChange={(e) => { setTheme(e.target.value); setPage(1); }}
+                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+              >
+                <option value="">All Themes</option>
+                {themes.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <select
+                value={organization}
+                onChange={(e) => { setOrganization(e.target.value); setPage(1); }}
+                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+              >
+                <option value="">All Organizations</option>
+                {organizations.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <select
+                value={competition}
+                onChange={(e) => { setCompetition(e.target.value); setPage(1); }}
+                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+              >
+                <option value="">All Competition</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Very High">Very High</option>
+              </select>
+              <select
+                value={shortlisted}
+                onChange={(e) => { setShortlisted(e.target.value); setPage(1); }}
+                className="text-sm px-3 py-2.5 sm:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white"
+              >
+                <option value="">All</option>
+                <option value="yes">Shortlisted</option>
+                <option value="no">Not Shortlisted</option>
+              </select>
+            </div>
+            {activeFilterCount > 0 && (
+              <button
+                onClick={() => { setCategory(""); setTheme(""); setOrganization(""); setCompetition(""); setShortlisted(""); setPage(1); }}
+                className="mt-2 text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 min-h-0"
+              >
+                <X size={12} /> Clear all filters
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded border border-gray-200 overflow-hidden">
+      {/* Mobile sort pills */}
+      <div className="flex sm:hidden gap-1.5 mb-3 overflow-x-auto pb-1 -mx-1 px-1">
+        {[
+          { field: "applicationCount", label: "Apps" },
+          { field: "competitionLevel", label: "Competition" },
+          { field: "title", label: "Title" },
+          { field: "organization", label: "Org" },
+        ].map(({ field, label }) => (
+          <button
+            key={field}
+            onClick={() => handleSort(field)}
+            className={clsx(
+              "flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-full whitespace-nowrap border transition min-h-0",
+              sortBy === field
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-600 border-gray-200"
+            )}
+          >
+            {label}
+            {sortBy === field && (sortOrder === "asc" ? <ChevronUp size={10} /> : <ChevronDown size={10} />)}
+          </button>
+        ))}
+      </div>
+
+      {/* ═══ MOBILE: Card View ═══ */}
+      <div className="sm:hidden space-y-2">
+        {problems.length === 0 ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500 text-sm">
+            No problem statements found. Try adjusting filters.
+          </div>
+        ) : (
+          problems.map((p) => (
+            <ProblemCard
+              key={p.id}
+              p={p}
+              onShortlistToggle={async () => {
+                const res = await fetch(`/api/problems/${p.id}/shortlist`, { method: "POST" });
+                if (res.ok) fetchData();
+              }}
+            />
+          ))
+        )}
+      </div>
+
+      {/* ═══ DESKTOP: Table View ═══ */}
+      <div className="hidden sm:block bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="data-table w-full min-w-[900px]">
             <thead>
@@ -413,7 +544,7 @@ export function Dashboard() {
                             if (res.ok) fetchData();
                           }}
                           className={clsx(
-                            "p-1.5 rounded hover:bg-gray-100 transition",
+                            "p-1.5 rounded hover:bg-gray-100 transition min-h-0",
                             p.shortlist ? "text-yellow-500" : "text-gray-400 hover:text-yellow-500"
                           )}
                           title={p.shortlist ? "Remove from shortlist" : "Add to shortlist"}
@@ -432,35 +563,35 @@ export function Dashboard() {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-            <span className="text-sm text-gray-500">
-              Page {page} of {totalPages} ({totalCount} total)
-            </span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className="px-3 py-1 text-sm border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className="px-3 py-1 text-sm border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-3 px-1 sm:px-4 py-3 flex items-center justify-between">
+          <span className="text-xs sm:text-sm text-gray-500">
+            Page {page}/{totalPages} <span className="hidden sm:inline">({totalCount} total)</span>
+          </span>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-3 py-1.5 sm:py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-0"
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 sm:py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-0"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm flex items-center gap-2">
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
           <AlertTriangle size={16} />
           {error}
         </div>
