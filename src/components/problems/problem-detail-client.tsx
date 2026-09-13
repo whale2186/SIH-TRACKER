@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Star,
@@ -115,6 +116,8 @@ function InfoRow({ label, children, href }: { label: string; children: React.Rea
 }
 
 export function ProblemDetailClient({ problem }: Props) {
+  const router = useRouter();
+
   const handleShortlistToggle = async () => {
     try {
       const res = await fetch(`/api/problems/${problem.id}/shortlist`, {
@@ -122,7 +125,7 @@ export function ProblemDetailClient({ problem }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ priority: "Medium", notes: "" }),
       });
-      if (res.ok) window.location.reload();
+      if (res.ok) router.refresh();
     } catch (e) {
       console.error("Failed to toggle shortlist", e);
     }
@@ -135,7 +138,7 @@ export function ProblemDetailClient({ problem }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ priority, notes }),
       });
-      window.location.reload();
+      router.refresh();
     } catch (e) {
       console.error("Failed to update shortlist", e);
     }
@@ -172,24 +175,24 @@ export function ProblemDetailClient({ problem }: Props) {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
-                          onClick={handleShortlistToggle}
-                          className={clsx(
-                            "p-2 sm:p-2.5 rounded-lg transition min-h-0",
-                            problem.shortlist
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          )}
-                          title={problem.shortlist ? "Remove from shortlist" : "Add to shortlist"}
-                        >
-                          <Star size={18} className={problem.shortlist ? "text-currentColor" : "text-gray-400"} />
-                        </button>
-                        <Link
-                          href={`/compare?ids=${problem.id}`}
-                          className="p-2 sm:p-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg transition min-h-0"
-                          title="Add to comparison"
-                        >
-                          <GitCompareArrows size={18} />
-                        </Link>
+              onClick={handleShortlistToggle}
+              className={clsx(
+                "p-2 sm:p-2.5 rounded-lg transition min-h-0",
+                problem.shortlist
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              )}
+              title={problem.shortlist ? "Remove from shortlist" : "Add to shortlist"}
+            >
+              <Star size={18} className={problem.shortlist ? "text-currentColor" : "text-gray-400"} />
+            </button>
+            <Link
+              href={`/compare?ids=${problem.id}`}
+              className="p-2 sm:p-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg transition min-h-0"
+              title="Add to comparison"
+            >
+              <GitCompareArrows size={18} />
+            </Link>
           </div>
         </div>
 
@@ -266,9 +269,9 @@ export function ProblemDetailClient({ problem }: Props) {
         {problem.datasetUrl && (
           <section>
             <SectionTitle>
-            <Database size={14} />
-            Dataset
-          </SectionTitle>
+              <Database size={14} />
+              Dataset
+            </SectionTitle>
             <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
               <a
                 href={problem.datasetUrl}
