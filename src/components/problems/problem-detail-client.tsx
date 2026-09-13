@@ -179,12 +179,12 @@ export function ProblemDetailClient({ problem }: Props) {
               className={clsx(
                 "p-2 sm:p-2.5 rounded-lg transition min-h-0",
                 problem.shortlist
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-muted text-muted-foreground hover:bg-gray-200"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
               )}
               title={problem.shortlist ? "Remove from shortlist" : "Add to shortlist"}
             >
-              <Star size={18} className={problem.shortlist ? "text-currentColor" : "text-muted-foreground/70"} />
+              <Star size={18} className={problem.shortlist ? "fill-current" : ""} />
             </button>
             <Link
               href={`/compare?ids=${problem.id}`}

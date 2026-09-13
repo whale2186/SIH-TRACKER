@@ -37,9 +37,9 @@ export async function POST(
     });
 
     return NextResponse.json({ shortlisted: true, shortlist });
-  } catch (error) {
-    console.error("Error toggling shortlist:", error);
-    return NextResponse.json({ error: "Failed to update shortlist" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Error toggling shortlist:", error?.message || error);
+    return NextResponse.json({ error: "Failed to update shortlist", details: error?.message || String(error) }, { status: 500 });
   }
 }
 
