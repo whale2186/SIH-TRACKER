@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { validateConfiguration, testConnection } from "@/lib/gemini/service";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const thresholds = await prisma.settings.findUnique({

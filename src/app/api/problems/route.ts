@@ -3,6 +3,8 @@ import prisma from "@/lib/db";
 import { getCompetitionLevel, DEFAULT_THRESHOLDS } from "@/lib/competition";
 import { Prisma } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
