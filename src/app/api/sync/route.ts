@@ -14,16 +14,23 @@ export async function POST() {
     });
 
     if (!response.ok) {
+      let errorMessage = `SIH website returned status ${response.status}`;
+      if (response.status === 403) {
+        errorMessage = "SIH website blocked this request (403 Forbidden). This typically happens when hosted on cloud platforms (Vercel, Render, etc.) as the SIH website blocks known cloud IP ranges. Sync works locally but not from cloud hosts.";
+      } else if (response.status === 405) {
+        errorMessage = "SIH website returned 405 Method Not Allowed. The page may require a different access method.";
+      }
+      
       await prisma.syncLog.create({
         data: {
           status: "error",
-          message: `SIH website returned status ${response.status}`,
+          message: errorMessage,
           count: 0,
         },
       });
       return NextResponse.json(
-        { error: `SIH website returned status ${response.status}` },
-        { status: 502 }
+        { error: errorMessage },
+        { status: response.status === 403 ? 403 : 502 }
       );
     }
 
