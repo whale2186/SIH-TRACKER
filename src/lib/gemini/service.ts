@@ -32,10 +32,23 @@ export async function testConnection(): Promise<{ success: boolean; message: str
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const result = await model.generateContent('Say "connected" in one word.');
-    const text = result.response.text();
-    return { success: true, message: `Connected. Response: ${text.substring(0, 50)}` };
+    // Try multiple model names as Google has updated their model identifiers
+    const modelNames = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+    let lastError: Error | null = null;
+    
+    for (const modelName of modelNames) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent('Say "connected" in one word.');
+        const text = result.response.text();
+        return { success: true, message: `Connected using ${modelName}. Response: ${text.substring(0, 50)}` };
+      } catch (error: unknown) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+        continue;
+      }
+    }
+    
+    return { success: false, message: `Connection failed: ${lastError?.message || 'All models failed'}` };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return { success: false, message: `Connection failed: ${msg}` };
@@ -47,7 +60,9 @@ export async function summarizeProblemStatement(input: PSSummaryInput): Promise<
   if (!config.configured) throw new Error(config.message);
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // Try multiple model names as Google has updated their model identifiers
+  const modelNames = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+  let lastError: Error | null = null;
 
   const prompt = `You are analyzing a Smart India Hackathon (SIH) 2026 Problem Statement. Summarize ONLY the information provided below. Do NOT invent any information not present in the data.
 
@@ -91,6 +106,16 @@ Rate as Easy / Medium / Hard / Very Hard with a short reason.
 ## Competition
 Current application count: ${input.applicationCount} teams have applied. (This is actual tracker data, not estimated.)`;
 
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  for (const modelName of modelNames) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error: unknown) {
+      lastError = error instanceof Error ? error : new Error('Unknown error');
+      continue;
+    }
+  }
+
+  throw new Error(`All models failed: ${lastError?.message || 'Unknown error'}`);
 }
