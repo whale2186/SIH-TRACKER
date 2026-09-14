@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -85,9 +83,9 @@ export function Sidebar() {
         <aside className="flex-shrink-0 h-full sidebar">{nav}</aside>
       )}
 
-      {/* Mobile bottom navigation - horizontal scroll for all items */}
+      {/* Mobile bottom navigation - responsive equal-width items with horizontal scroll fallback */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t safe-area-bottom bottom-nav">
-        <div className="flex items-center gap-1 px-1 py-1 overflow-x-auto scrollbar-hide">
+        <div className="flex w-full overflow-x-auto scrollbar-hide">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -95,14 +93,14 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={clsx(
-                  "flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-lg min-w-[64px] transition-colors bottom-nav-item whitespace-nowrap shrink-0",
+                  "flex flex-col items-center justify-center gap-1 py-2 px-2 min-w-0 flex-1 shrink-0 transition-colors bottom-nav-item whitespace-nowrap",
                   isActive(item.href)
                     ? "text-primary bg-muted"
                     : "text-muted-foreground"
                 )}
               >
                 <Icon size={20} />
-                <span className="text-[10px] font-medium leading-tight bottom-nav-label">{item.label}</span>
+                <span className="text-[10px] font-medium leading-tight bottom-nav-label truncate max-w-full">{item.label}</span>
               </Link>
             );
           })}
