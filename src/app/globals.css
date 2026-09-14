@@ -525,6 +525,15 @@ html {
   border-color: var(--border);
 }
 
+/* Scrollbar hide utility for horizontal scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Header */
 .header {
   @apply sticky top-0 z-40 border-b px-4 py-3;

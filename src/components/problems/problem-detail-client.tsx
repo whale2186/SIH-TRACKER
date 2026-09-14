@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   ArrowLeft,
   Star,
@@ -17,6 +18,8 @@ import {
   Clock,
   Globe,
   PlaySquare,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import clsx from "clsx";
 import { formatDistanceToNow, differenceInDays, differenceInHours } from "date-fns";
@@ -120,7 +123,30 @@ function InfoRow({ label, children, href }: { label: string; children: React.Rea
 export function ProblemDetailClient({ problem }: Props) {
   const router = useRouter();
   const shortlistState = useShortlistStore();
-  
+  const [aiSummary, setAiSummary] = useState<string | null>(problem.summary?.summary || null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  const handleGenerateSummary = async () => {
+    setIsGeneratingSummary(true);
+    setSummaryError(null);
+    try {
+      const res = await fetch(`/api/problems/${problem.id}/summarize`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to generate summary");
+      }
+      const data = await res.json();
+      setAiSummary(data.summary);
+    } catch (e) {
+      setSummaryError(e instanceof Error ? e.message : "Failed to generate summary");
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
+
   // Provide hydration-safe defaults or client-only checks if hydration mapping mismatches
   // But simplest is relying on zustand store value.
   const shortlistItem = shortlistState.items[problem.id];
@@ -163,6 +189,18 @@ export function ProblemDetailClient({ problem }: Props) {
             <h1 className="text-lg sm:text-2xl font-bold text-foreground">{problem.title}</h1>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={handleGenerateSummary}
+              disabled={isGeneratingSummary}
+              className={clsx(
+                "p-2 sm:p-2.5 rounded-lg transition min-h-0",
+                isGeneratingSummary ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+              title={isGeneratingSummary ? "Generating AI summary..." : aiSummary ? "View AI summary" : "Generate AI summary"}
+            >
+              <Sparkles size={18} />
+              {isGeneratingSummary && <Loader2 size={16} className="animate-spin ml-1" />}
+            </button>
             <button
               onClick={handleShortlistToggle}
               className={clsx(
@@ -241,6 +279,44 @@ export function ProblemDetailClient({ problem }: Props) {
       </div>
 
       <div className="space-y-4 sm:space-y-6">
+        {/* AI Summary */}
+        {(aiSummary || isGeneratingSummary || summaryError) && (
+          <section>
+            <SectionTitle>
+              <Sparkles size={14} className="text-primary" />
+              AI Summary
+            </SectionTitle>
+            <div className="bg-primary/5 rounded-lg border border-primary/20 p-4 sm:p-5">
+              {isGeneratingSummary ? (
+                <div className="flex flex-col items-center justify-center py-6 gap-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground animate-pulse">Analyzing problem statement with Gemini AI...</p>
+                </div>
+              ) : summaryError ? (
+                <div className="flex bg-red-100 p-4 rounded-lg">
+                  <AlertTriangle className="text-red-600 mr-2 flex-shrink-0" />
+                  <div className="text-sm text-red-800">
+                    <strong>Failed to generate summary:</strong>
+                    <p className="mt-1">{summaryError}</p>
+                  </div>
+                </div>
+              ) : aiSummary ? (
+                <div className="prose prose-sm max-w-none text-foreground prose-headings:text-primary prose-a:text-primary">
+                  {/* Since the AI returns markdown, if we want full markdown parsing we'd need marked or similar.
+                      For now, simply rendering it with white-space pre-wrap works well enough if it's text. */}
+                  <div className="whitespace-pre-wrap leading-relaxed" style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{
+                    __html: aiSummary
+                      .replace(/^# (.*$)/gim, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>')
+                      .replace(/^## (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
+                      .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+                      .replace(/\n\n/g, '<br/>')
+                  }} />
+                </div>
+              ) : null}
+            </div>
+          </section>
+        )}
+
         {/* Problem Statement */}
         <section>
           <SectionTitle>

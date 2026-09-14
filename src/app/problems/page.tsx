@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { ProblemsList } from "@/components/dashboard";
 
 export default function Page() {
-  redirect("/");
+  return <ProblemsList />;
 }

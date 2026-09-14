@@ -1,23 +1,21 @@
 "use client";
 
+"use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
-  LayoutDashboard,
   FileText,
   Star,
   GitCompareArrows,
   BarChart3,
   History,
   Settings,
-  Menu,
-  X,
 } from "lucide-react";
-import { useState } from "react";
 import clsx from "clsx";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/problems", label: "Problems", icon: FileText },
   { href: "/shortlist", label: "Shortlist", icon: Star },
   { href: "/compare", label: "Compare", icon: GitCompareArrows },
@@ -26,12 +24,22 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-// Bottom nav shows a subset on mobile
-const bottomNavItems = navItems.slice(0, 5);
+// Bottom nav shows all items with horizontal scroll on mobile
+const bottomNavItems = navItems;
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [width, setWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleResize = () => setWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      // Set initial width
+      setWidth(window.innerWidth);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -51,7 +59,6 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setMobileOpen(false)}
               className={clsx(
                 "flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors rounded-lg mx-2",
                 isActive(item.href)
@@ -73,41 +80,14 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:block w-56 flex-shrink-0 h-full sidebar">
-        {nav}
-      </aside>
-
-      {/* Mobile hamburger for full nav (extra items like Settings/History) */}
-      <button
-        className="lg:hidden fixed top-3 right-12 z-50 p-2 rounded-lg shadow-sm btn-ghost"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Menu"
-      >
-        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
-          onClick={() => setMobileOpen(false)}
-        />
+      {/* Desktop sidebar - hidden on mobile */}
+      {width >= 1024 && (
+        <aside className="flex-shrink-0 h-full sidebar">{nav}</aside>
       )}
 
-      {/* Mobile slide-out drawer */}
-      <aside
-        className={clsx(
-          "lg:hidden fixed inset-y-0 left-0 z-40 w-64 shadow-xl transition-transform duration-200 ease-in-out drawer",
-          mobileOpen ? "translate-x-0 open" : "-translate-x-full closed"
-        )}
-      >
-        {nav}
-      </aside>
-
-      {/* Mobile bottom navigation */}
+      {/* Mobile bottom navigation - horizontal scroll for all items */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t safe-area-bottom bottom-nav">
-        <div className="flex items-center justify-around px-1 py-1">
+        <div className="flex items-center gap-1 px-1 py-1 overflow-x-auto scrollbar-hide">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -115,7 +95,7 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={clsx(
-                  "flex flex-col items-center gap-0.5 py-1.5 px-2 rounded-lg min-w-[56px] transition-colors bottom-nav-item",
+                  "flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-lg min-w-[64px] transition-colors bottom-nav-item whitespace-nowrap shrink-0",
                   isActive(item.href)
                     ? "text-primary bg-muted"
                     : "text-muted-foreground"

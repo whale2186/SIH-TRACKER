@@ -180,7 +180,7 @@ function ProblemCard({ p }: { p: ProblemStatement }) {
   );
 }
 
-export function Dashboard() {
+export function ProblemsList() {
   const shortlistState = useShortlistStore();
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);

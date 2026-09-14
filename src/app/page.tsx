@@ -1,10 +1,7 @@
-import { Metadata } from "next";
-import { Dashboard } from "@/components/dashboard";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "SIH 2026 Tracker",
-};
+export const dynamic = "force-dynamic";
 
 export default function Page() {
-  return <Dashboard />;
+  redirect("/problems");
 }

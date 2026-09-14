@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, Save, CheckCircle, AlertTriangle } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 function SettingsPage() {
   const [thresholds, setThresholds] = useState({ low: 0, medium: 100, high: 250, veryHigh: 500 });
@@ -61,6 +62,18 @@ function SettingsPage() {
       <h1 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Settings</h1>
 
       <div className="space-y-4 sm:space-y-6">
+        {/* Appearance Settings */}
+        <section className="bg-card rounded-lg border border-border p-3 sm:p-4">
+          <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4 pb-2 border-b border-border/50">Appearance</h2>
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <p className="font-medium text-foreground">Theme</p>
+              <p className="text-muted-foreground mt-0.5">Toggle between light, dark, and system color themes.</p>
+            </div>
+            <ThemeToggle />
+          </div>
+        </section>
+
         {/* Gemini Settings */}
         <section className="bg-card rounded-lg border border-border p-3 sm:p-4">
           <h2 className="text-sm font-semibold text-foreground mb-3 sm:mb-4 pb-2 border-b border-border/50">Gemini Configuration</h2>
