@@ -184,6 +184,7 @@ export function ProblemsList() {
   const shortlistState = useShortlistStore();
   const [hydrated, setHydrated] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const prevProblemsRef = useRef<ProblemStatement[]>([]);
   useEffect(() => setHydrated(true), []);
   const [problems, setProblems] = useState<ProblemStatement[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -283,8 +284,16 @@ export function ProblemsList() {
   }, [search, category, theme, organization, competition, shortlisted, sortBy, sortOrder, page]);
 
   // Blur search input when no results found (unfocus on empty results)
+  // Only blur when transitioning FROM having results TO zero results
   useEffect(() => {
-    if (!loading && problems.length === 0 && search && searchInputRef.current) {
+    const prevCount = prevProblemsRef.current.length;
+    const currCount = problems.length;
+    
+    // Update ref for next render
+    prevProblemsRef.current = problems;
+    
+    // Only blur if we had results before and now have zero (transition to empty)
+    if (!loading && prevCount > 0 && currCount === 0 && search && searchInputRef.current) {
       if (document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
       }
