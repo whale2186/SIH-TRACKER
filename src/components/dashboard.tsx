@@ -185,6 +185,7 @@ export function ProblemsList() {
   const [hydrated, setHydrated] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const prevProblemsRef = useRef<ProblemStatement[]>([]);
+  const lastBlurredSearchRef = useRef<string>("");
   useEffect(() => setHydrated(true), []);
   const [problems, setProblems] = useState<ProblemStatement[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -285,6 +286,7 @@ export function ProblemsList() {
 
   // Blur search input when no results found (unfocus on empty results)
   // Only blur when transitioning FROM having results TO zero results
+  // And only once per unique search query
   useEffect(() => {
     const prevCount = prevProblemsRef.current.length;
     const currCount = problems.length;
@@ -292,11 +294,22 @@ export function ProblemsList() {
     // Update ref for next render
     prevProblemsRef.current = problems;
     
-    // Only blur if we had results before and now have zero (transition to empty)
+    // Only blur if:
+    // 1. Not loading
+    // 2. We had results before and now have zero (transition to empty)
+    // 3. There's a search query
+    // 4. Input is focused
+    // 5. We haven't already blurred for this exact search query
     if (!loading && prevCount > 0 && currCount === 0 && search && searchInputRef.current) {
-      if (document.activeElement === searchInputRef.current) {
+      if (document.activeElement === searchInputRef.current && lastBlurredSearchRef.current !== search) {
+        lastBlurredSearchRef.current = search;
         searchInputRef.current.blur();
       }
+    }
+    
+    // Reset the blur tracking when search query changes (so new queries can blur again)
+    if (search !== lastBlurredSearchRef.current && currCount > 0) {
+      lastBlurredSearchRef.current = "";
     }
   }, [problems, search, loading]);
 
