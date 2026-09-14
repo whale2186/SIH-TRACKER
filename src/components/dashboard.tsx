@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -183,22 +183,23 @@ function ProblemCard({ p }: { p: ProblemStatement }) {
 export function ProblemsList() {
   const shortlistState = useShortlistStore();
   const [hydrated, setHydrated] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => setHydrated(true), []);
   const [problems, setProblems] = useState<ProblemStatement[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [theme, setTheme] = useState("");
-  const [organization, setOrganization] = useState("");
-  const [competition, setCompetition] = useState("");
-  const [shortlisted, setShortlisted] = useState("");
-  const [sortBy, setSortBy] = useState("applicationCount");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [page, setPage] = useState(1);
+  // Filters - Persisted in sessionStorage
+  const [search, setSearch] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_search") || "" : "");
+  const [category, setCategory] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_cat") || "" : "");
+  const [theme, setTheme] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_theme") || "" : "");
+  const [organization, setOrganization] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_org") || "" : "");
+  const [competition, setCompetition] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_comp") || "" : "");
+  const [shortlisted, setShortlisted] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_short") || "" : "");
+  const [sortBy, setSortBy] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("sih_sortBy") || "applicationCount" : "applicationCount");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => typeof window !== "undefined" ? (sessionStorage.getItem("sih_sortOrd") as "asc" | "desc") || "desc" : "desc");
+  const [page, setPage] = useState(() => typeof window !== "undefined" ? Number(sessionStorage.getItem("sih_page")) || 1 : 1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -265,6 +266,30 @@ export function ProblemsList() {
     fetchData();
     fetchAnalytics();
   }, [search, category, theme, organization, competition, shortlisted, sortBy, sortOrder, page]);
+
+  // Persist filters to sessionStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("sih_search", search);
+      sessionStorage.setItem("sih_cat", category);
+      sessionStorage.setItem("sih_theme", theme);
+      sessionStorage.setItem("sih_org", organization);
+      sessionStorage.setItem("sih_comp", competition);
+      sessionStorage.setItem("sih_short", shortlisted);
+      sessionStorage.setItem("sih_sortBy", sortBy);
+      sessionStorage.setItem("sih_sortOrd", sortOrder);
+      sessionStorage.setItem("sih_page", page.toString());
+    }
+  }, [search, category, theme, organization, competition, shortlisted, sortBy, sortOrder, page]);
+
+  // Blur search input when no results found (unfocus on empty results)
+  useEffect(() => {
+    if (!loading && problems.length === 0 && search && searchInputRef.current) {
+      if (document.activeElement === searchInputRef.current) {
+        searchInputRef.current.blur();
+      }
+    }
+  }, [problems, search, loading]);
 
   function handleSort(field: string) {
     if (sortBy === field) {
@@ -386,6 +411,7 @@ export function ProblemsList() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search PS ID, title, org..."
               value={search}
