@@ -1,0 +1,21 @@
+[Unit]
+Description=SIH Sync Job - Fetches SIH data and pushes to Render API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/sih-sync
+ExecStart=/opt/sih-sync/sih-sync
+Restart=always
+RestartSec=10
+EnvironmentFile=/opt/sih-sync/.env
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sih-sync
+
+[Install]
+WantedBy=multi-user.target

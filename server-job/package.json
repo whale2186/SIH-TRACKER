@@ -1,0 +1,14 @@
+{
+  "name": "sih-sync-job",
+  "version": "1.0.0",
+  "description": "Standalone sync job to fetch SIH data and push to Render API",
+  "main": "sync.js",
+  "type": "module",
+  "scripts": {
+    "sync": "node sync.js",
+    "start": "node sync.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
